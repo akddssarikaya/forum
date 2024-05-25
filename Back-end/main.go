@@ -19,11 +19,6 @@ func main() {
 
 	handlers.CreateUserTable(database) // Use exported function
 
-	_, err = database.Exec("DELETE FROM users")
-	if err != nil {
-		log.Fatalf("Failed to clear users table: %s", err)
-	}
-
 	log.Println("Tables created successfully!")
 	emails := []string{
 		"emirtariik@gmail.com",
@@ -32,6 +27,7 @@ func main() {
 		"sude@gmail.com",
 		"akuddusi@gmail.com",
 		"bkaan@gmail.com",
+		"emirtariik@gmail.com",
 	}
 	usernames := []string{
 		"emirtariik",
@@ -40,6 +36,7 @@ func main() {
 		"sude",
 		"akuddusi",
 		"bkaan",
+		"emirtariik",
 	}
 	passwords := []string{
 		"12",
@@ -48,6 +45,7 @@ func main() {
 		"78",
 		"910",
 		"1112",
+		"12",
 	}
 
 	for i := 0; i < len(emails); i++ {
@@ -56,12 +54,24 @@ func main() {
 			Username: usernames[i],
 			Password: passwords[i],
 		}
-		// Veritabanına kullanıcıyı ekle
-		userID, err := handlers.InsertUser(database, user)
-		if err != nil {
-			fmt.Println("Kullanıcı eklenirken bir hata oluştu:", err)
+
+		// Kullanıcı zaten mevcut mu kontrol et
+		var userID int64
+		err := database.QueryRow("SELECT id FROM users WHERE email = ? OR username = ?", user.Email, user.Username).Scan(&userID)
+		if err == sql.ErrNoRows {
+			// Kullanıcı mevcut değil, ekleyelim
+			userID, err = handlers.InsertUser(database, user)
+			if err != nil {
+				fmt.Println("Kullanıcı eklenirken bir hata oluştu:", err)
+			} else {
+				fmt.Println("Yeni kullanıcı eklendi, kullanıcı ID:", userID)
+			}
+		} else if err != nil {
+			fmt.Println("Kullanıcı kontrol edilirken bir hata oluştu:", err)
 		} else {
-			fmt.Println("Yeni kullanıcı eklendi, kullanıcı ID:", userID)
+			fmt.Println("Kullanıcı zaten mevcut, kullanıcı ID:", userID)
+			// Burada kullanıcı zaten mevcut olduğu için bir uyarı verebiliriz.
+			fmt.Println("Uyarı: Bu kullanıcı zaten mevcut!")
 		}
 	}
 
