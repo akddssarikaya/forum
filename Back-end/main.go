@@ -37,7 +37,7 @@ func main() {
 	// Serve static files
 	fs := http.FileServer(http.Dir("../Front-end"))
 	http.Handle("/Front-end/", http.StripPrefix("/Front-end/", fs))
-
+	// register sayfasını görmek için şu adresi gir : http://localhost:8080/Front-end/pages/register.html
 	http.HandleFunc("/register", registerHandler)
 
 	log.Println("Server is running on http://localhost:8080")
