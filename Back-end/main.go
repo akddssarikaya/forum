@@ -5,12 +5,15 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"path/filepath"
+	"text/template"
 
 	"forum/handlers" // Import using module path
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
+var tmplCache = make(map[string]*template.Template)
 var (
 	database *sql.DB
 )
@@ -31,50 +34,136 @@ func main() {
 	handlers.CreatePostTable(database)
 	handlers.CreateLikesTable(database)
 	handlers.CreateCommentsTable(database)
-
+	loadTemplates()
 	log.Println("Tables created successfully!")
+	staticFs := http.FileServer(http.Dir("../Front-end/styles"))
+	http.Handle("/styles/", http.StripPrefix("/styles/", staticFs))
 
-	// Serve static files
-	fs := http.FileServer(http.Dir("../Front-end"))
-	http.Handle("/Front-end/", http.StripPrefix("/Front-end/", fs))
-	// register sayfasını görmek için şu adresi gir : http://localhost:8080/Front-end/pages/register.html
-	http.HandleFunc("/register", registerHandler)
+	docsFs := http.FileServer(http.Dir("../Front-end/docs"))
+	http.Handle("/docs/", http.StripPrefix("/docs/", docsFs))
+
+	http.HandleFunc("/", handleHome)
+	http.HandleFunc("/login", handleLogin)
+	http.HandleFunc("/loginSubmit", handleLoginPost)
+	http.HandleFunc("/register", handleRegister)
+	http.HandleFunc("/registerSubmit", handleRegisterPost)
 
 	log.Println("Server is running on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+
 }
 
-func registerHandler(w http.ResponseWriter, r *http.Request) {
+func loadTemplates() {
+
+	tmplCache["login"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "login.html")))
+	tmplCache["register"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "register.html")))
+	tmplCache["home"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "home.html")))
+}
+
+func handleHome(w http.ResponseWriter, r *http.Request) {
+	tmpl, ok := tmplCache["home"]
+	if !ok {
+		http.Error(w, "Could not load home template", http.StatusInternalServerError)
+		return
+	}
+
+	err := tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func handleLogin(w http.ResponseWriter, r *http.Request) {
+
+	tmpl, ok := tmplCache["login"]
+	if !ok {
+		http.Error(w, "Could not load login template", http.StatusInternalServerError)
+		return
+	}
+
+	err := tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+func handleLoginPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		username := r.FormValue("username")
 		password := r.FormValue("password")
+
+		db, err := sql.Open("sqlite3", "./database/forum.db")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer db.Close()
+
+		var user handlers.User
+		err = db.QueryRow("SELECT username, password FROM users WHERE username = ?", username).Scan(&user.Username, &user.Password)
+		if err != nil {
+			http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+			return
+		}
+
+		if password != user.Password {
+			http.Error(w, "Invalid password", http.StatusUnauthorized)
+			return
+		}
+		// giriş yapıldıktan sonra profil page e yönlendirir
+		http.Redirect(w, r, "/profile", http.StatusSeeOther)
+	}
+}
+
+func handleRegister(w http.ResponseWriter, r *http.Request) {
+	tmpl, ok := tmplCache["register"]
+	if !ok {
+		http.Error(w, "Could not load register template", http.StatusInternalServerError)
+		return
+	}
+
+	err := tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+func handleRegisterPost(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		username := r.FormValue("username")
 		email := r.FormValue("email")
+		password := r.FormValue("password")
+
+		db, err := sql.Open("sqlite3", "./database/forum.db")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer db.Close()
 
 		user := handlers.User{
 			Email:    email,
 			Username: username,
 			Password: password,
 		}
-
-		// Check if the user already exists in the database
 		var userID int64
-		err := database.QueryRow("SELECT id FROM users WHERE email = ? OR username = ?", user.Email, user.Username).Scan(&userID)
+		err = db.QueryRow("SELECT id FROM users WHERE email = ? OR username = ?", email, username).Scan(&userID)
 		if err == sql.ErrNoRows {
-			// If user doesn't exist, insert into the database
-			userID, err = handlers.InsertUser(database, user)
+			userID, err = handlers.InsertUser(db, user)
 			if err != nil {
-				http.Error(w, "Error adding user", http.StatusInternalServerError)
-				return
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			} else {
+				//kayıt oluşturma başarılı olmuşsa giriş sayfasına yönlendirir
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
 			}
 			w.WriteHeader(http.StatusCreated)
 			json.NewEncoder(w).Encode(map[string]string{"message": "User registered successfully"})
 		} else if err != nil {
-			http.Error(w, "Error checking user", http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
-			// If user already exists, return a conflict error
-			http.Error(w, "User already exists", http.StatusConflict)
+			http.Error(w, "Username or email already exists", http.StatusForbidden)
 		}
-	} else {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+
 	}
 }
