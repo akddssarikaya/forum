@@ -7,7 +7,7 @@
     <body>
         <header>
             <div class="pages">
-                <img class="logo_image" src="/Front-end/docs/WG.png" alt="logo">
+                <img class="logo_image" src="../docs/WG.png" alt="logo">
                 <a class="page_label" href="/">HomePage</a>
                 <a class="page_label" href="/category">Categories</a>
                 <a class="page_label" href="/create_post">CreatePost</a>
@@ -17,7 +17,7 @@
         </header>
         <div class="reg_grid" >
             <div class="reg_container">
-                <form>
+                <form action="/registerSubmit" method="post">
                     <label class="reg_head" >Register</label><br><br><br>
                     <label class="reg_label" for="username">Username:</label><br>
                     <input class="reg_input" type="text" id="username" name="username"><br><br>
@@ -32,5 +32,6 @@
                 </button>
             </div>
         </div>
+        <script src="../scripts/main.js"></script>
     </body>
 </html>

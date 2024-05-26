@@ -2,13 +2,17 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
+	"net/http"
+	"path/filepath"
+	"text/template"
 
 	"forum/handlers" // Import using module path
 
 	_ "github.com/mattn/go-sqlite3"
 )
+
+var tmplCache = make(map[string]*template.Template)
 
 func main() {
 	database, err := sql.Open("sqlite3", "./database/forum.db")
@@ -18,62 +22,136 @@ func main() {
 	defer database.Close()
 
 	handlers.CreateUserTable(database) // Use exported function
-
+	loadTemplates()
 	log.Println("Tables created successfully!")
-	emails := []string{
-		"emirtariik@gmail.com",
-		"sezerdincer@gmail.com",
-		"gulbeyza@gmail.com",
-		"sude@gmail.com",
-		"akuddusi@gmail.com",
-		"bkaan@gmail.com",
-		"emirtariik@gmail.com",
-	}
-	usernames := []string{
-		"emirtariik",
-		"sezerdincer",
-		"gulbeyza",
-		"sude",
-		"akuddusi",
-		"bkaan",
-		"emirtariik",
-	}
-	passwords := []string{
-		"12",
-		"34",
-		"56",
-		"78",
-		"910",
-		"1112",
-		"12",
-	}
+	staticFs := http.FileServer(http.Dir("../Front-end/styles"))
+	http.Handle("/styles/", http.StripPrefix("/styles/", staticFs))
 
-	for i := 0; i < len(emails); i++ {
-		user := handlers.User{
-			Email:    emails[i],
-			Username: usernames[i],
-			Password: passwords[i],
-		}
+	docsFs := http.FileServer(http.Dir("../Front-end/docs"))
+	http.Handle("/docs/", http.StripPrefix("/docs/", docsFs))
 
-		// Kullanıcı zaten mevcut mu kontrol et
-		var userID int64
-		err := database.QueryRow("SELECT id FROM users WHERE email = ? OR username = ?", user.Email, user.Username).Scan(&userID)
-		if err == sql.ErrNoRows {
-			// Kullanıcı mevcut değil, ekleyelim
-			userID, err = handlers.InsertUser(database, user)
-			if err != nil {
-				fmt.Println("Kullanıcı eklenirken bir hata oluştu:", err)
-			} else {
-				fmt.Println("Yeni kullanıcı eklendi, kullanıcı ID:", userID)
-			}
-		} else if err != nil {
-			fmt.Println("Kullanıcı kontrol edilirken bir hata oluştu:", err)
-		} else {
-			fmt.Println("Kullanıcı zaten mevcut, kullanıcı ID:", userID)
-			// Burada kullanıcı zaten mevcut olduğu için bir uyarı verebiliriz.
-			fmt.Println("Uyarı: Bu kullanıcı zaten mevcut!")
-		}
-	}
+	http.HandleFunc("/", handleHome)
+	http.HandleFunc("/login", handleLogin)
+	http.HandleFunc("/loginSubmit", handleLoginPost)
+	http.HandleFunc("/register", handleRegister)
+	http.HandleFunc("/registerSubmit", handleRegisterPost)
 
 	handlers.PrintUsers(database)
+	log.Println("Listening on :8080...")
+	log.Fatal(http.ListenAndServe(":8080", nil))
+	handlers.PrintUsers(database)
+
+}
+
+func loadTemplates() {
+
+	tmplCache["login"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "login.html")))
+	tmplCache["register"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "register.html")))
+	tmplCache["home"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "home.html")))
+}
+
+func handleHome(w http.ResponseWriter, r *http.Request) {
+	tmpl, ok := tmplCache["home"]
+	if !ok {
+		http.Error(w, "Could not load home template", http.StatusInternalServerError)
+		return
+	}
+
+	err := tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func handleLogin(w http.ResponseWriter, r *http.Request) {
+
+	tmpl, ok := tmplCache["login"]
+	if !ok {
+		http.Error(w, "Could not load login template", http.StatusInternalServerError)
+		return
+	}
+
+	err := tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+func handleLoginPost(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		username := r.FormValue("username")
+		password := r.FormValue("password")
+
+		db, err := sql.Open("sqlite3", "./database/forum.db")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer db.Close()
+
+		var user handlers.User
+		err = db.QueryRow("SELECT username, password FROM users WHERE username = ?", username).Scan(&user.Username, &user.Password)
+		if err != nil {
+			http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+			return
+		}
+
+		if password != user.Password {
+			http.Error(w, "Invalid password", http.StatusUnauthorized)
+			return
+		}
+		// giriş yapıldıktan sonra profil page e yönlendirir
+		http.Redirect(w, r, "/profile", http.StatusSeeOther)
+	}
+}
+
+func handleRegister(w http.ResponseWriter, r *http.Request) {
+	tmpl, ok := tmplCache["register"]
+	if !ok {
+		http.Error(w, "Could not load register template", http.StatusInternalServerError)
+		return
+	}
+
+	err := tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+func handleRegisterPost(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		username := r.FormValue("username")
+		email := r.FormValue("email")
+		password := r.FormValue("password")
+
+		db, err := sql.Open("sqlite3", "./database/forum.db")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer db.Close()
+
+		user := handlers.User{
+			Email:    email,
+			Username: username,
+			Password: password,
+		}
+		var userID int64
+		err = db.QueryRow("SELECT id FROM users WHERE email = ? OR username = ?", email, username).Scan(&userID)
+		if err == sql.ErrNoRows {
+			userID, err = handlers.InsertUser(db, user)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			} else {
+				//kayıt oluşturma başarılı olmuşsa giriş sayfasına yönlendirir
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+			}
+		} else if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		} else {
+			http.Error(w, "Username or email already exists", http.StatusForbidden)
+		}
+
+	}
 }
