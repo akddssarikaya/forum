@@ -1,7 +1,7 @@
 package handlers
 
 type User struct {
-	ID       int
+	ID       int64
 	Email    string
 	Username string
 	Password string
