@@ -101,7 +101,7 @@ func handleLoginPost(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 
 		var user handlers.User
-		err = db.QueryRow("SELECT username, password FROM users WHERE username = ?", username).Scan(&user.Username, &user.Password)
+		err = db.QueryRow("SELECT username, password ,email FROM users WHERE username = ? OR email = ?", username, username).Scan(&user.Username, &user.Password, &user.Email)
 		if err != nil {
 			http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 			return
