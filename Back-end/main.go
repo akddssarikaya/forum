@@ -157,7 +157,7 @@ func handleRegisterPost(w http.ResponseWriter, r *http.Request) {
 				//kayıt oluşturma başarılı olmuşsa giriş sayfasına yönlendirir
 				http.Redirect(w, r, "/login", http.StatusSeeOther)
 			}
-			w.WriteHeader(http.StatusCreated)
+			//w.WriteHeader(http.StatusCreated)
 			json.NewEncoder(w).Encode(map[string]string{"message": "User registered successfully"})
 		} else if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
