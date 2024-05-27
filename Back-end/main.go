@@ -48,6 +48,7 @@ func main() {
 	http.HandleFunc("/loginSubmit", handleLoginPost)
 	http.HandleFunc("/register", handleRegister)
 	http.HandleFunc("/registerSubmit", handleRegisterPost)
+	http.HandleFunc("/profile", handleProfile)
 
 	log.Println("Server is running on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -59,6 +60,7 @@ func loadTemplates() {
 	tmplCache["login"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "login.html")))
 	tmplCache["register"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "register.html")))
 	tmplCache["home"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "home.html")))
+	tmplCache["profile"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "profile.html")))
 }
 
 func handleHome(w http.ResponseWriter, r *http.Request) {
@@ -78,6 +80,20 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 func handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, ok := tmplCache["login"]
+	if !ok {
+		http.Error(w, "Could not load login template", http.StatusInternalServerError)
+		return
+	}
+
+	err := tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+func handleProfile(w http.ResponseWriter, r *http.Request) {
+
+	tmpl, ok := tmplCache["profile"]
 	if !ok {
 		http.Error(w, "Could not load login template", http.StatusInternalServerError)
 		return
