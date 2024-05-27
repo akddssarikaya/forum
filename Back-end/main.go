@@ -3,12 +3,13 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"forum/handlers" // Import using module path
 	"log"
 	"net/http"
 	"path/filepath"
 	"text/template"
 
-	"forum/handlers" // Import using module path
+	"golang.org/x/crypto/bcrypt"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -101,21 +102,23 @@ func handleLoginPost(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 
 		var user handlers.User
-		err = db.QueryRow("SELECT username, password ,email FROM users WHERE username = ? OR email = ?", username, username).Scan(&user.Username, &user.Password, &user.Email)
+		err = db.QueryRow("SELECT username, password, email FROM users WHERE username = ? OR email = ?", username, username).Scan(&user.Username, &user.Password, &user.Email)
 		if err != nil {
 			http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 			return
 		}
 
-		if password != user.Password {
+		// Check if the provided password matches the hashed password
+		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+		if err != nil {
 			http.Error(w, "Invalid password", http.StatusUnauthorized)
 			return
 		}
-		// giriş yapıldıktan sonra profil page e yönlendirir
+
+		// Redirect to profile page after successful login
 		http.Redirect(w, r, "/profile", http.StatusSeeOther)
 	}
 }
-
 func handleRegister(w http.ResponseWriter, r *http.Request) {
 	tmpl, ok := tmplCache["register"]
 	if !ok {
@@ -135,6 +138,13 @@ func handleRegisterPost(w http.ResponseWriter, r *http.Request) {
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 
+		// Hash the password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			http.Error(w, "Error hashing password", http.StatusInternalServerError)
+			return
+		}
+
 		db, err := sql.Open("sqlite3", "./database/forum.db")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -145,7 +155,7 @@ func handleRegisterPost(w http.ResponseWriter, r *http.Request) {
 		user := handlers.User{
 			Email:    email,
 			Username: username,
-			Password: password,
+			Password: string(hashedPassword),
 		}
 		var userID int64
 		err = db.QueryRow("SELECT id FROM users WHERE email = ? OR username = ?", email, username).Scan(&userID)
@@ -154,16 +164,13 @@ func handleRegisterPost(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			} else {
-				//kayıt oluşturma başarılı olmuşsa giriş sayfasına yönlendirir
 				http.Redirect(w, r, "/login", http.StatusSeeOther)
 			}
-			//w.WriteHeader(http.StatusCreated)
 			json.NewEncoder(w).Encode(map[string]string{"message": "User registered successfully"})
 		} else if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		} else {
 			http.Error(w, "Username or email already exists", http.StatusForbidden)
 		}
-
 	}
 }
