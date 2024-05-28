@@ -20,6 +20,7 @@ func LoadTemplates() {
 	tmplCache["register"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "register.html")))
 	tmplCache["home"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "home.html")))
 	tmplCache["profile"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "profile.html")))
+	tmplCache["panel"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "panel.html")))
 }
 
 func HandleHome(w http.ResponseWriter, r *http.Request) {
@@ -49,6 +50,68 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+func HandleAdmin(w http.ResponseWriter, r *http.Request) {
+	var database *sql.DB
+
+	tmpl, ok := tmplCache["panel"]
+	if !ok {
+		http.Error(w, "Could not load login template", http.StatusInternalServerError)
+		return
+	}
+	err := tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// Parse user ID from form data
+	userIdStr := r.FormValue("userId")
+	userId, err := strconv.Atoi(userIdStr)
+
+	if err != nil {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return
+	}
+
+	// Call the deletetable function
+	if err := deletetable(database, userId); err != nil {
+		http.Error(w, "Failed to delete user", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with success message
+	fmt.Fprintf(w, "User with ID %d deleted successfully", userId)
+}
+func deletetable(database *sql.DB, userId int) error {
+	// Begin transaction
+	tx, err := database.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Define SQL statements as strings
+	deleteStmt := "DELETE FROM users WHERE id = ?;"
+	updateStmt := "UPDATE users SET id = id - 1 WHERE id > ?;"
+
+	// Execute the delete statement
+	_, err = tx.Exec(deleteStmt, userId)
+	if err != nil {
+		return err
+	}
+
+	// Execute the update statement
+	_, err = tx.Exec(updateStmt, userId)
+	if err != nil {
+		return err
+	}
+
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func HandleProfile(w http.ResponseWriter, r *http.Request) {
