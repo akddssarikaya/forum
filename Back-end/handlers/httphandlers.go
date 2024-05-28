@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -52,36 +53,46 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func HandleAdmin(w http.ResponseWriter, r *http.Request) {
+	// Assuming you have a global database connection pool
 	var database *sql.DB
+	var err error
+	database, err = sql.Open("sqlite3", "./database/forum.db")
+	if err != nil {
+		log.Fatalf("Failed to open database: %s", err)
+	}
+	defer database.Close()
 
 	tmpl, ok := tmplCache["panel"]
 	if !ok {
 		http.Error(w, "Could not load login template", http.StatusInternalServerError)
 		return
 	}
-	err := tmpl.Execute(w, nil)
+	err = tmpl.Execute(w, nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	// Parse user ID from form data
-	userIdStr := r.FormValue("userId")
-	userId, err := strconv.Atoi(userIdStr)
 
-	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
-		return
+	if r.Method == http.MethodPost {
+		// Parse user ID from form data
+		userIdStr := r.FormValue("userId")
+		userId, err := strconv.Atoi(userIdStr)
+		if err != nil {
+			http.Error(w, "Invalid user ID", http.StatusBadRequest)
+			return
+		}
+
+		// Call the deletetable function
+		if err := deletetable(database, userId); err != nil {
+			http.Error(w, "Failed to delete user", http.StatusInternalServerError)
+			return
+		}
+
+		// Respond with success message
+		fmt.Fprintf(w, "User with ID %d deleted successfully", userId)
 	}
-
-	// Call the deletetable function
-	if err := deletetable(database, userId); err != nil {
-		http.Error(w, "Failed to delete user", http.StatusInternalServerError)
-		return
-	}
-
-	// Respond with success message
-	fmt.Fprintf(w, "User with ID %d deleted successfully", userId)
 }
+
 func deletetable(database *sql.DB, userId int) error {
 	// Begin transaction
 	tx, err := database.Begin()
