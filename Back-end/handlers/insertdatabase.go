@@ -76,3 +76,4 @@ func InsertProfile(db *sql.DB, userID int64) (int64, error) {
 	}
 	return 0, err
 }
+
