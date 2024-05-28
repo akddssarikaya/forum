@@ -33,7 +33,7 @@ func InsertUser(database *sql.DB, user User) (int64, error) {
 	return lastID, nil
 }
 
-func InsertProfile(db *sql.DB, userID int) (int64, error) {
+func InsertProfile(db *sql.DB, userID int64) (int64, error) {
 	var user User
 	err := db.QueryRow("SELECT id, email, username FROM users WHERE id = ?", userID).Scan(&user.ID, &user.Email, &user.Username)
 	if err != nil {

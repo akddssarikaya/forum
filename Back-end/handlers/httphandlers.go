@@ -52,14 +52,13 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleProfile(w http.ResponseWriter, r *http.Request) {
-	userIDStr := r.URL.Query().Get("user_id")
-	if userIDStr == "" {
+	cookie, err := r.Cookie("user_id")
+	if err != nil {
 		http.Error(w, "User ID not provided", http.StatusBadRequest)
 		return
 	}
 
-	// Convert userIDStr to integer
-	userID, err := strconv.Atoi(userIDStr)
+	userID, err := strconv.ParseInt(cookie.Value, 10, 64)
 	if err != nil {
 		http.Error(w, "Invalid user ID", http.StatusBadRequest)
 		return
@@ -105,14 +104,13 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Redirect to the profile page again to display the newly inserted profile
-		http.Redirect(w, r, "/profile?user_id="+userIDStr, http.StatusSeeOther)
+		http.Redirect(w, r, "/profile", http.StatusSeeOther)
 	} else {
 		// Error occurred while querying for profile existence
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
-
 func HandleLoginPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		username := r.FormValue("username")
@@ -152,8 +150,16 @@ func HandleLoginPost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// Set the user ID in a cookie
+		http.SetCookie(w, &http.Cookie{
+			Name:     "user_id",
+			Value:    fmt.Sprint(user.ID),
+			Path:     "/",
+			HttpOnly: true,
+		})
+
 		// Redirect to profile page after successful login
-		http.Redirect(w, r, "/profile?user_id="+fmt.Sprint(user.ID), http.StatusSeeOther)
+		http.Redirect(w, r, "/profile", http.StatusSeeOther)
 	}
 }
 
