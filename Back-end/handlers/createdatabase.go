@@ -18,7 +18,32 @@ func CreateUserTable(database *sql.DB) {
 		log.Fatalf("Users table creation failed: %s", err)
 	}
 }
+func CreateUserProfileTable(database *sql.DB) {
+	// Drop the existing profile table if it exists
+	_, err := database.Exec(`DROP TABLE IF EXISTS profile;`)
+	if err != nil {
+		log.Fatalf("Failed to drop existing profile table: %s", err)
+	}
 
+	// Create the profile table with the correct schema
+	createUserStatsTable := `	
+	CREATE TABLE IF NOT EXISTS profile (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id INTEGER UNIQUE NOT NULL,
+		username TEXT NOT NULL,
+		email TEXT NOT NULL,
+		last_login TIMESTAMP,
+		total_likes INTEGER DEFAULT 0,
+		total_dislikes INTEGER DEFAULT 0,
+		FOREIGN KEY (user_id) REFERENCES users(id),
+		FOREIGN KEY (email) REFERENCES users(email),
+		FOREIGN KEY (username) REFERENCES users(username)
+	);`
+	_, err = database.Exec(createUserStatsTable)
+	if err != nil {
+		log.Fatalf("User profile table creation failed: %s", err)
+	}
+}
 func CreatePostTable(database *sql.DB) {
 	createPostsTable := `
     CREATE TABLE IF NOT EXISTS posts (
