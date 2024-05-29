@@ -2,16 +2,15 @@ package main
 
 import (
 	"database/sql"
-	"forum/handlers" // Import using module path
 	"log"
 	"net/http"
+
+	"forum/handlers" // Import using module path
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var (
-	database *sql.DB
-)
+var database *sql.DB
 
 func main() {
 	var err error
@@ -29,7 +28,8 @@ func main() {
 	handlers.CreatePostTable(database)
 	handlers.CreateLikesTable(database)
 	handlers.CreateCommentsTable(database)
-	handlers.CreateUserProfileTable(database)
+
+	handlers.CreateProfileTable(database)
 	handlers.LoadTemplates()
 	log.Println("Tables created successfully!")
 	staticFs := http.FileServer(http.Dir("../Front-end/styles"))
@@ -44,8 +44,9 @@ func main() {
 	http.HandleFunc("/register", handlers.HandleRegister)
 	http.HandleFunc("/registerSubmit", handlers.HandleRegisterPost)
 	http.HandleFunc("/profile", handlers.HandleProfile)
-
+	// Handle form submission
+	http.HandleFunc("/panel", handlers.HandleAdmin)
+	http.HandleFunc("/logout", handlers.HandleLogout)
 	log.Println("Server is running on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
-
 }

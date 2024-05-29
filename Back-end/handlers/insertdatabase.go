@@ -15,8 +15,27 @@ func InsertUser(database *sql.DB, user User) (int64, error) {
 		return 0, err
 	}
 
+	tx, err := database.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
+	var rowCount int
+	err = tx.QueryRow("SELECT COUNT(*) FROM users").Scan(&rowCount)
+	if err != nil {
+		return 0, err
+	}
+
+	if rowCount == 0 {
+		resetAIStmt := "DELETE FROM sqlite_sequence WHERE name = 'users';"
+		if _, err := tx.Exec(resetAIStmt); err != nil {
+			return 0, err
+		}
+	}
+
 	insertUserSQL := `INSERT INTO users (email, username, password) VALUES (?, ?, ?)`
-	statement, err := database.Prepare(insertUserSQL)
+	statement, err := tx.Prepare(insertUserSQL)
 	if err != nil {
 		return 0, err
 	}
@@ -29,50 +48,46 @@ func InsertUser(database *sql.DB, user User) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, err
+	}
+
 	log.Printf("User %s inserted with ID: %d", user.Username, lastID)
 	return lastID, nil
 }
 
-func InsertProfile(db *sql.DB, userID int64) (int64, error) {
-	var user User
-	err := db.QueryRow("SELECT id, email, username FROM users WHERE id = ?", userID).Scan(&user.ID, &user.Email, &user.Username)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return 0, errors.New("user not found")
-		}
-		return 0, err
-	}
+func InsertOrUpdateProfile(db *sql.DB, userID int64, username, email string) (int64, error) {
+	var profileID int64
 
-	// Check if profile already exists for the user
-	var existingID int
-	err = db.QueryRow("SELECT id FROM profile WHERE user_id = ?", userID).Scan(&existingID)
-	if err == nil {
-		// Profile exists, perform an update
-		updateProfileSQL := `
-            UPDATE profile
-            SET email = ?, username = ?
-            WHERE user_id = ?
-        `
-		_, err := db.Exec(updateProfileSQL, user.Email, user.Username, userID)
-		if err != nil {
-			return 0, err
-		}
-		return int64(existingID), nil // Return the existing profile ID
-	} else if err == sql.ErrNoRows {
-		// Profile doesn't exist, insert a new profile for the user
+	err := db.QueryRow("SELECT id FROM profile WHERE user_id = ?", userID).Scan(&profileID)
+	if err == sql.ErrNoRows {
+		// Insert new profile
 		insertProfileSQL := `
-            INSERT INTO profile (email, username, user_id)
+            INSERT INTO profile (user_id, username, email)
             VALUES (?, ?, ?)
         `
-		res, err := db.Exec(insertProfileSQL, user.Email, user.Username, userID)
+		res, err := db.Exec(insertProfileSQL, userID, username, email)
 		if err != nil {
 			return 0, err
 		}
-		lastID, err := res.LastInsertId()
+		profileID, err = res.LastInsertId()
 		if err != nil {
 			return 0, err
 		}
-		return lastID, nil
+	} else if err != nil {
+		return 0, err
+	} else {
+		// Update existing profile
+		updateProfileSQL := `
+            UPDATE profile
+            SET username = ?, email = ?
+            WHERE user_id = ?
+        `
+		_, err := db.Exec(updateProfileSQL, username, email, userID)
+		if err != nil {
+			return 0, err
+		}
 	}
-	return 0, err
+	return profileID, nil
 }

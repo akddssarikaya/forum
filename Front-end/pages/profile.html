@@ -21,10 +21,14 @@
             </div>
             <div profil >
                 <h1 style="text-align: center;">{{.Username}}</h1>
+               
                 <br><br><br><label>Username : </label><p id="username">{{.Username}}</p>
                 <br><label>Email : </label> <p id ="email"> {{.Email}}</p>
                 <br><label>Likes : </label> <p id = "likes">15</p>
-                <br><label>Dislikes</label> <p id="dislikes">3</p>
+                <br><label>Dislikes</label> <p id="dislikes">3</p> 
+                <form action="/logout" method="post">
+                    <button type="submit">Logout</button>
+                </form>
             </div>
         </div>
         <div class="post_viewer">

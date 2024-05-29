@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -15,11 +16,12 @@ import (
 var tmplCache = make(map[string]*template.Template)
 
 func LoadTemplates() {
-
-	tmplCache["login"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "login.html")))
-	tmplCache["register"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "register.html")))
-	tmplCache["home"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "home.html")))
-	tmplCache["profile"] = template.Must(template.ParseFiles(filepath.Join("..", "Front-end", "pages", "profile.html")))
+	templates := []string{"login", "register", "home", "profile", "panel"}
+	for _, tmpl := range templates {
+		path := filepath.Join("..", "Front-end", "pages", tmpl+".html")
+		tmplCache[tmpl] = template.Must(template.ParseFiles(path))
+	}
+	log.Println("Templates loaded successfully!")
 }
 
 func HandleHome(w http.ResponseWriter, r *http.Request) {
@@ -29,26 +31,105 @@ func HandleHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := tmpl.Execute(w, nil)
-	if err != nil {
+	if err := tmpl.Execute(w, nil); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
 
-func HandleLogin(w http.ResponseWriter, r *http.Request) {
+// HandleLogout clears the user cookie and redirects to the login page
+func HandleLogout(w http.ResponseWriter, r *http.Request) {
+	// Clear the user cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "user_id",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+	})
 
+	// Redirect to the login page
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
+}
+
+func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	tmpl, ok := tmplCache["login"]
 	if !ok {
 		http.Error(w, "Could not load login template", http.StatusInternalServerError)
 		return
 	}
 
-	err := tmpl.Execute(w, nil)
+	if err := tmpl.Execute(w, nil); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func HandleAdmin(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open("sqlite3", "./database/forum.db")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	defer db.Close()
+	tmpl, ok := tmplCache["panel"]
+	if !ok {
+		http.Error(w, "Could not load panel template", http.StatusInternalServerError)
+		return
+	}
+
+	if r.Method == http.MethodPost {
+		userIdStr := r.FormValue("userId")
+		userId, err := strconv.Atoi(userIdStr)
+		if err != nil {
+			http.Error(w, "Invalid user ID", http.StatusBadRequest)
+			return
+		}
+
+		if err := deletetable(db, userId); err != nil {
+			http.Error(w, "Failed to delete user", http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprintf(w, "User with ID %d deleted successfully", userId)
+	} else {
+		if err := tmpl.Execute(w, nil); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
+}
+
+func deletetable(database *sql.DB, userId int) error {
+	// Transaction başlat
+	tx, err := database.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Kullanıcıyı sil
+	deleteStmt := "DELETE FROM users WHERE id = ?;"
+	if _, err := tx.Exec(deleteStmt, userId); err != nil {
+		return err
+	}
+
+	// Tabloda kalan satır sayısını kontrol et
+	rowCount := 0
+	countStmt := "SELECT COUNT(*) FROM users;"
+	if err := tx.QueryRow(countStmt).Scan(&rowCount); err != nil {
+		return err
+	}
+
+	// Eğer tablo boş ise, AUTO_INCREMENT değerini sıfırla
+	if rowCount == 0 {
+		resetAIStmt := "ALTER TABLE users AUTO_INCREMENT = 1;"
+		if _, err := tx.Exec(resetAIStmt); err != nil {
+			return err
+		}
+	}
+
+	// Transaction'ı commit et
+	return tx.Commit()
 }
 
 func HandleProfile(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +145,6 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Open the database
 	db, err := sql.Open("sqlite3", "./database/forum.db")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -72,45 +152,29 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	// Check if profile already exists for the user
-	var existingID int
-	err = db.QueryRow("SELECT id FROM profile WHERE user_id = ?", userID).Scan(&existingID)
-	if err == nil {
-		// Profile already exists, proceed with retrieving and displaying the profile
-		var user = User{} // Define an empty User struct
-		err := db.QueryRow("SELECT username, email FROM profile WHERE user_id = ?", userID).Scan(&user.Username, &user.Email)
-		if err != nil {
-			http.Error(w, "User not found", http.StatusInternalServerError)
-			return
-		}
+	var user User
+	err = db.QueryRow("SELECT id, username, email FROM users WHERE id = ?", userID).Scan(&user.ID, &user.Username, &user.Email)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusInternalServerError)
+		return
+	}
 
-		tmpl, ok := tmplCache["profile"]
-		if !ok {
-			http.Error(w, "Could not load profile template", http.StatusInternalServerError)
-			return
-		}
-
-		err = tmpl.Execute(w, user)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	} else if err == sql.ErrNoRows {
-		// Profile doesn't exist, insert a new profile for the user
-		_, err := InsertProfile(db, userID)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Redirect to the profile page again to display the newly inserted profile
-		http.Redirect(w, r, "/profile", http.StatusSeeOther)
-	} else {
-		// Error occurred while querying for profile existence
+	if _, err := InsertOrUpdateProfile(db, userID, user.Username, user.Email); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	tmpl, ok := tmplCache["profile"]
+	if !ok {
+		http.Error(w, "Could not load profile template", http.StatusInternalServerError)
+		return
+	}
+
+	if err := tmpl.Execute(w, user); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
+
 func HandleLoginPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		username := r.FormValue("username")
@@ -176,6 +240,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
 func HandleRegisterPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		username := r.FormValue("username")
