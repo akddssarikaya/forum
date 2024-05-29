@@ -19,13 +19,15 @@
             <div>
                 <img class="prof_image" src="https://st5.depositphotos.com/1915171/63123/v/450/depositphotos_631235886-stock-illustration-user-profile-icon-vector-avatar.jpg">
             </div>
-            <div profil >
+            <div profil >  
+                <a href="panel">Admin Paneli Giris</a>
                 <h1 style="text-align: center;">{{.Username}}</h1>
                
                 <br><br><br><label>Username : </label><p id="username">{{.Username}}</p>
                 <br><label>Email : </label> <p id ="email"> {{.Email}}</p>
                 <br><label>Likes : </label> <p id = "likes">15</p>
                 <br><label>Dislikes</label> <p id="dislikes">3</p> 
+                
                 <form action="/logout" method="post">
                     <button type="submit">Logout</button>
                 </form>

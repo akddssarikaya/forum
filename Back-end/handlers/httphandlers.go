@@ -87,7 +87,8 @@ func HandleAdmin(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := deletetable(db, userId); err != nil {
-			http.Error(w, "Failed to delete user", http.StatusInternalServerError)
+			http.Error(w, "Failed to delete user: "+err.Error(), http.StatusInternalServerError)
+			log.Println("Failed to delete user:", err)
 			return
 		}
 
@@ -120,9 +121,9 @@ func deletetable(database *sql.DB, userId int) error {
 		return err
 	}
 
-	// Eğer tablo boş ise, AUTO_INCREMENT değerini sıfırla
+	// Eğer tablo boş ise, otomatik artan değeri sıfırla
 	if rowCount == 0 {
-		resetAIStmt := "ALTER TABLE users AUTO_INCREMENT = 1;"
+		resetAIStmt := "DELETE FROM SQLITE_SEQUENCE WHERE NAME = 'users';"
 		if _, err := tx.Exec(resetAIStmt); err != nil {
 			return err
 		}
