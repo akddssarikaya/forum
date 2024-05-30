@@ -3,8 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../styles/main.css">
+    <title>Categories</title>
 </head>
-<body> 
+<body>
     <header>
         <div class="pages">
             <img class="logo_image" src="/docs/WG.png" alt="logo">
@@ -16,20 +17,15 @@
             <a class="page_label" href="/register">Register</a>
         </div>
     </header>
-    <title>Categories</title>
-</head>
-<body>
     <h1>Categories</h1>
     <ul>
         {{range .}}
         <li>
-            <h2>{{.Name}}</h2>
+            <h2><a href="/category/{{.Name}}">{{.Name}}</a></h2>
             <p>{{.Description}}</p>
         </li>
         {{end}}
     </ul>
-</body>
-
     <script src="../scripts/main.js"></script>
 </body>
 </html>

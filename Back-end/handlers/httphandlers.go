@@ -84,13 +84,41 @@ func InitializeDatabase() {
 		}
 		statement.Exec()
 
-		// Örnek verileri ekle
-		statement, _ = db.Prepare("INSERT INTO categories (name, description) VALUES (?, ?)")
-		statement.Exec("Seyehat Önerileri", "En iyi seyehat önerileri")
-		statement.Exec("Yurt İçi Geziler", "Türkiye içindeki en iyi geziler")
-		statement.Exec("Yurt Dışı Geziler", "Yurt dışındaki en iyi geziler")
-		statement.Exec("Vizesiz Yurt Dışı Gezileri", "Vizesiz gidilebilecek ülkeler")
-		statement.Exec("Doğa ve Kamp", "Doğa ve kamp hakkında bilgiler")
+		// Tablo boş mu diye kontrol et
+		var count int
+		err = db.QueryRow("SELECT COUNT(*) FROM categories").Scan(&count)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Eğer tablo boşsa örnek verileri ekle
+		if count == 0 {
+			statement, err = db.Prepare("INSERT INTO categories (name, description) VALUES (?, ?)")
+			if err != nil {
+				log.Fatal(err)
+			}
+			_, err = statement.Exec("Seyehat Önerileri", "En iyi seyehat önerileri")
+			if err != nil {
+				log.Fatal(err)
+			}
+			_, err = statement.Exec("Yurt İçi Geziler", "Türkiye içindeki en iyi geziler")
+			if err != nil {
+				log.Fatal(err)
+			}
+			_, err = statement.Exec("Yurt Dışı Geziler", "Yurt dışındaki en iyi geziler")
+			if err != nil {
+				log.Fatal(err)
+			}
+			_, err = statement.Exec("Vizesiz Yurt Dışı Gezileri", "Vizesiz gidilebilecek ülkeler")
+			if err != nil {
+				log.Fatal(err)
+			}
+			_, err = statement.Exec("Doğa ve Kamp", "Doğa ve kamp hakkında bilgiler")
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
 		log.Println("Database initialized successfully!")
 	})
 }

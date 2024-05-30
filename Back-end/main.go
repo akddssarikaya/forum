@@ -28,14 +28,15 @@ func main() {
 	handlers.CreatePostTable(database)
 	handlers.CreateLikesTable(database)
 	handlers.CreateCommentsTable(database)
-
 	handlers.CreateProfileTable(database)
+
 	handlers.LoadTemplates()
 	log.Println("Tables created successfully!")
 	staticFs := http.FileServer(http.Dir("../Front-end/styles"))
 	http.Handle("/styles/", http.StripPrefix("/styles/", staticFs))
 
 	docsFs := http.FileServer(http.Dir("../Front-end/docs"))
+	// Handle form submission
 	http.Handle("/docs/", http.StripPrefix("/docs/", docsFs))
 
 	http.HandleFunc("/", handlers.HandleHome)
@@ -44,7 +45,6 @@ func main() {
 	http.HandleFunc("/register", handlers.HandleRegister)
 	http.HandleFunc("/registerSubmit", handlers.HandleRegisterPost)
 	http.HandleFunc("/profile", handlers.HandleProfile)
-	// Handle form submission
 	http.HandleFunc("/panel", handlers.HandleAdmin)
 	http.HandleFunc("/logout", handlers.HandleLogout)
 	http.HandleFunc("/category", handlers.HandleCategory)
