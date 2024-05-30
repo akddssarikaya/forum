@@ -21,7 +21,6 @@ func CreateUserTable(database *sql.DB) {
 
 func CreateProfileTable(database *sql.DB) {
 	CreateProfileTable := `
-	
 	CREATE TABLE IF NOT EXISTS profile (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	user_id INTEGER UNIQUE NOT NULL,
@@ -31,8 +30,8 @@ func CreateProfileTable(database *sql.DB) {
 	total_likes INTEGER DEFAULT 0,
 	total_dislikes INTEGER DEFAULT 0,
 	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-`
+	);
+	`
 	_, err := database.Exec(CreateProfileTable)
 	if err != nil {
 		log.Fatalf("User profile table creation failed: %s", err)
