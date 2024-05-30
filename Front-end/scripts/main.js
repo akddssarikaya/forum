@@ -37,4 +37,12 @@ document.getElementById('register-from').addEventListener('submit',function(even
 });
 
 
+// main.js dosyasına eklenecek JavaScript kodu
+function navigateToCategory() {
+    const dropdown = document.getElementById('categoryDropdown');
+    const selectedValue = dropdown.value;
 
+    if (selectedValue) {
+        window.location.href = selectedValue;
+    }
+}
