@@ -6,3 +6,8 @@ type User struct {
 	Username string
 	Password string
 }
+type Category struct {
+	ID          int
+	Name        string
+	Description string
+}

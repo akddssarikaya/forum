@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"sync"
 	"text/template"
 
 	"golang.org/x/crypto/bcrypt"
@@ -16,12 +17,82 @@ import (
 var tmplCache = make(map[string]*template.Template)
 
 func LoadTemplates() {
-	templates := []string{"login", "register", "home", "profile", "panel"}
+	templates := []string{"login", "register", "home", "profile", "panel", "category"}
 	for _, tmpl := range templates {
 		path := filepath.Join("..", "Front-end", "pages", tmpl+".html")
 		tmplCache[tmpl] = template.Must(template.ParseFiles(path))
 	}
 	log.Println("Templates loaded successfully!")
+}
+
+func HandleCategory(w http.ResponseWriter, r *http.Request) {
+	InitializeDatabase() // Veritabanını sadece bir kere başlat
+
+	db, err := sql.Open("sqlite3", "./database/forum.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	// Veritabanından kategorileri çek
+	rows, err := db.Query("SELECT id, name, description FROM categories")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var categories []Category
+	for rows.Next() {
+		var category Category
+		err := rows.Scan(&category.ID, &category.Name, &category.Description)
+		if err != nil {
+			log.Fatal(err)
+		}
+		categories = append(categories, category)
+	}
+
+	tmpl, ok := tmplCache["category"]
+	if !ok {
+		http.Error(w, "Could not load category template", http.StatusInternalServerError)
+		return
+	}
+
+	if err := tmpl.Execute(w, categories); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+var once sync.Once
+
+func InitializeDatabase() {
+	once.Do(func() {
+		db, err := sql.Open("sqlite3", "./database/forum.db")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+
+		// Tabloyu oluştur
+		statement, err := db.Prepare(`CREATE TABLE IF NOT EXISTS categories (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT NOT NULL,
+			description TEXT
+		)`)
+		if err != nil {
+			log.Fatal(err)
+		}
+		statement.Exec()
+
+		// Örnek verileri ekle
+		statement, _ = db.Prepare("INSERT INTO categories (name, description) VALUES (?, ?)")
+		statement.Exec("Seyehat Önerileri", "En iyi seyehat önerileri")
+		statement.Exec("Yurt İçi Geziler", "Türkiye içindeki en iyi geziler")
+		statement.Exec("Yurt Dışı Geziler", "Yurt dışındaki en iyi geziler")
+		statement.Exec("Vizesiz Yurt Dışı Gezileri", "Vizesiz gidilebilecek ülkeler")
+		statement.Exec("Doğa ve Kamp", "Doğa ve kamp hakkında bilgiler")
+		log.Println("Database initialized successfully!")
+	})
 }
 
 func HandleHome(w http.ResponseWriter, r *http.Request) {

@@ -47,6 +47,7 @@ func main() {
 	// Handle form submission
 	http.HandleFunc("/panel", handlers.HandleAdmin)
 	http.HandleFunc("/logout", handlers.HandleLogout)
+	http.HandleFunc("/category", handlers.HandleCategory)
 	log.Println("Server is running on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

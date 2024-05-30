@@ -5,6 +5,21 @@ import (
 	"log"
 )
 
+func CreateCategoryTable(database *sql.DB) {
+	CreateCategoryTable := `
+	CREATE TABLE categories (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL,
+		description TEXT
+	);
+	
+	`
+	_, err := database.Exec(CreateCategoryTable)
+	if err != nil {
+		log.Fatalf("User profile table creation failed: %s", err)
+	}
+}
+
 func CreateUserTable(database *sql.DB) {
 	createUsersTable := `
 	CREATE TABLE IF NOT EXISTS users (
