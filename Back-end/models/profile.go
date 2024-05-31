@@ -46,7 +46,9 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := tmpl.Execute(w, user); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	// Kullanıcı bilgilerini ve oturum durumunu template'e ekleyelim
+	tmpl.Execute(w, map[string]interface{}{
+		"User":     user,
+		"LoggedIn": true,
+	})
 }

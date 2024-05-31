@@ -13,13 +13,18 @@
             <a class="page_label" href="/category">Categories</a>
             <a class="page_label" href="/create_post">CreatePost</a>
             <a class="page_label" href="/profile">Profile</a>
+            {{if not .LoggedIn}}
             <a class="page_label" href="/login">Login</a>
             <a class="page_label" href="/register">Register</a>
+            {{end}}
+            {{if .LoggedIn}}
+            <a class="page_label" href="/logout">Logout</a>
+            {{end}}
         </div>
     </header>
     <h1>Categories</h1>
     <ul>
-        {{range .}}
+        {{range .Categories}}
         <li>
             <h2>{{.Name}} </h2>
             <p><a href="{{.Link}}">{{.Description}}</a><p>

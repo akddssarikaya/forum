@@ -14,6 +14,9 @@ var once sync.Once
 func HandleCategory(w http.ResponseWriter, r *http.Request) {
 	InitializeDatabase() // Veritabanını sadece bir kere başlat
 
+	userIDCookie, err := r.Cookie("user_id")
+	loggedIn := err == nil
+
 	db, err := sql.Open("sqlite3", "./database/forum.db")
 	if err != nil {
 		log.Fatal(err)
@@ -42,10 +45,17 @@ func HandleCategory(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Could not load category template", http.StatusInternalServerError)
 		return
 	}
+	tmplData := map[string]interface{}{
+		"Categories": categories,
+		"LoggedIn":   loggedIn,
+	}
 
-	if err := tmpl.Execute(w, categories); err != nil {
+	if loggedIn {
+		tmplData["UserID"] = userIDCookie.Value
+	}
+
+	if err := tmpl.Execute(w, tmplData); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
 }
 
