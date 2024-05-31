@@ -21,8 +21,10 @@
     <ul>
         {{range .}}
         <li>
-            <h2><a href="/category/{{.Name}}">{{.Name}}</a></h2>
-            <p>{{.Description}}</p>
+            <h2>{{.Name}} </h2>
+            <p><a href="{{.Link}}">{{.Description}}</a><p>
+          
+            
         </li>
         {{end}}
     </ul>
