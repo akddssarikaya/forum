@@ -10,11 +10,12 @@ func CreateCategoryTable(database *sql.DB) {
 	CREATE TABLE categories (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		name TEXT NOT NULL,
-		description TEXT
+		description TEXT,
+		link TEXT NOT NULL
 	);
 	
 	`
-	_, err := database.Exec(CreateCategoryTable)
+_, err := database.Exec(CreateCategoryTable)
 	if err != nil {
 		log.Fatalf("User profile table creation failed: %s", err)
 	}

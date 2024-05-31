@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"forum/handlers" // Import using module path
+	"forum/models"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -30,7 +31,7 @@ func main() {
 	handlers.CreateCommentsTable(database)
 	handlers.CreateProfileTable(database)
 
-	handlers.LoadTemplates()
+	models.LoadTemplates()
 	log.Println("Tables created successfully!")
 	staticFs := http.FileServer(http.Dir("../Front-end/styles"))
 	http.Handle("/styles/", http.StripPrefix("/styles/", staticFs))
@@ -39,15 +40,15 @@ func main() {
 	// Handle form submission
 	http.Handle("/docs/", http.StripPrefix("/docs/", docsFs))
 
-	http.HandleFunc("/", handlers.HandleHome)
-	http.HandleFunc("/login", handlers.HandleLogin)
-	http.HandleFunc("/loginSubmit", handlers.HandleLoginPost)
-	http.HandleFunc("/register", handlers.HandleRegister)
-	http.HandleFunc("/registerSubmit", handlers.HandleRegisterPost)
-	http.HandleFunc("/profile", handlers.HandleProfile)
-	http.HandleFunc("/panel", handlers.HandleAdmin)
-	http.HandleFunc("/logout", handlers.HandleLogout)
-	http.HandleFunc("/category", handlers.HandleCategory)
+	http.HandleFunc("/", models.HandleHome)
+	http.HandleFunc("/login", models.HandleLogin)
+	http.HandleFunc("/loginSubmit", models.HandleLoginPost)
+	http.HandleFunc("/register", models.HandleRegister)
+	http.HandleFunc("/registerSubmit", models.HandleRegisterPost)
+	http.HandleFunc("/profile", models.HandleProfile)
+	http.HandleFunc("/panel", models.HandleAdmin)
+	http.HandleFunc("/logout", models.HandleLogout)
+	http.HandleFunc("/category", models.HandleCategory)
 	log.Println("Server is running on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

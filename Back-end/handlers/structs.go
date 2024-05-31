@@ -10,4 +10,5 @@ type Category struct {
 	ID          int
 	Name        string
 	Description string
+	Link        string
 }
