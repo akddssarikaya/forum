@@ -48,7 +48,8 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 
 	// Kullanıcı bilgilerini ve oturum durumunu template'e ekleyelim
 	tmpl.Execute(w, map[string]interface{}{
-		"User":     user,
+		"Username": user.Username,
+		"Email":    user.Email,
 		"LoggedIn": true,
 	})
 }
