@@ -35,6 +35,8 @@ func main() {
 	log.Println("Tables created successfully!")
 	staticFs := http.FileServer(http.Dir("../Front-end/styles"))
 	http.Handle("/styles/", http.StripPrefix("/styles/", staticFs))
+	image := http.FileServer(http.Dir("../Front-end/img"))
+	http.Handle("/img/", http.StripPrefix("/img/", image))
 
 	docsFs := http.FileServer(http.Dir("../Front-end/docs"))
 	// Handle form submission
