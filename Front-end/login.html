@@ -1,38 +1,46 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="styles/globalslogin.css" />
-    <link rel="stylesheet" href="styles/stylelogin.css" />
-  </head>
-  <body>
-    <div class="desktop-screen">
-      <div class="div">
-        <div class="overlap"><div class="text-wrapper">REGISTER</div></div>
-        <div class="overlap-group"><div class="text-wrapper-2">LOGIN</div></div>
-        <div class="overlap-group-2">
-          <div class="rectangle"></div>
-          <div class="rectangle-2"></div>
-          <div class="rectangle-3"></div>
-          <div class="text-wrapper-3">Username</div>
-          <div class="text-wrapper-4">Password</div>
-          <img class="image" src="img/image-1.png" />
-          <img class="img" src="img/image-2.png" />
-          <img class="mdi-account" src="img/mdi-account.svg" />
-          <div class="rectangle-4"></div>
-          <div class="text-wrapper-5">LOGIN</div>
-        </div>
-        <div class="text-wrapper-6">or Login with</div>
-        <div class="text-wrapper-7">Regsiter</div>
-        <img class="facebook" src="img/facebook.png" />
-        <div class="overlap-2">
-          <img class="twitter" src="img/twitter.png" />
-          <img class="instagram" src="img/instagram.png" />
-          <img class="linked-in" src="img/linkedin.png" />
-        </div>
-        <div class="text-wrapper-8">Don’t have an account?</div>
-        <img class="facebook-2" src="img/logo.png" />
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="styles/globalslogin.css" />
+  <link rel="stylesheet" href="styles/stylelogin.css" />
+</head>
+<body>
+  <div class="desktop-screen">
+    <div class="div">
+      <div class="overlap">
+        <a href="register" class="text-wrapper">REGISTER</a>
       </div>
+      <div class="overlap-group">
+        <a href="login" class="text-wrapper-2">LOGIN</a>
+      </div>
+      <form action="/loginSubmit" method="post" class="overlap-group-2">
+        <div class="rectangle"></div>
+        <div class="rectangle-2">
+          <input type="text" name="username" class="input-field" placeholder="Username" required />
+        </div>
+        <div class="rectangle-3">
+          <input type="password" name="password" class="input-field" placeholder="Password" required />
+        </div>
+        <div class="text-wrapper-3">Username</div>
+        <div class="text-wrapper-4">Password</div>
+        <img class="image" src="img/image-1.png" />
+        
+        <img class="mdi-account" src="img/mdi-account.svg" />
+      <button type="submit" class="rectangle-4" style="font-size: 20px;">LOGIN</button>
+      </form>
+      <div class="text-wrapper-6">or Login with</div>
+      <a class="text-wrapper-7" href="register">Register</a>
+     
+      <img class="facebook" src="img/facebook.png" />
+      <div class="overlap-2">
+        <img class="twitter" src="img/twitter.png" />
+        <img class="instagram" src="img/instagram.png" />
+        <img class="linked-in" src="img/linkedin.png" />
+      </div>
+      <div class="text-wrapper-8">Don’t have an account?</div>
+      <img class="facebook-2" src="img/logo.png" />
     </div>
-  </body>
+  </div>
+</body>
 </html>
