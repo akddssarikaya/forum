@@ -54,6 +54,11 @@ func HandleHome(w http.ResponseWriter, r *http.Request) {
 		"Categories": categories,
 	}
 
+	// Kullanıcı giriş yapmamışsa Login ve Register bağlantılarını ekle
+	if !loggedIn {
+		data["ShowLoginRegister"] = true
+	}
+
 	if err := tmpl.Execute(w, data); err != nil {
 		http.Error(w, "Could not execute template", http.StatusInternalServerError)
 		return

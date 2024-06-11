@@ -1,39 +1,59 @@
-header{
-    background-color: silver;
-    width: 100%;
-    border: 1px solid silver;
-    border-radius: 2cap;
-    font-family: 'Montreal', sans-serif;                            
-    margin-bottom: 75px;
+body {
+    font-family: 'Montreal', sans-serif;
+    background-color: #e0f7f1; /* Su yeşili arka plan */
+    margin: 0;
+    padding: 0;
 }
-.pages{
+
+header {
+    background-color: #00796b; /* Su yeşili koyu tonu */
+    color: #fff;
+    padding: 10px 0;
+}
+
+.pages {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 2%;
-    margin-right: 5%;
+    width: 80%;
+    margin: 0 auto;
 }
-.pages{
+
+.logo_image {
+    width: 90px;
+    height: 90px;
+}
+
+nav {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin: 2%;
-    margin-right: 5%;
+    flex-grow: 1;
+    justify-content: space-around; /* Boşlukları eşitler */
 }
-.page_label{
+
+nav a {
+    color: #fff;
     text-decoration: none;
-    color: white;
-    font-size: 20px;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
-.logo_image{
-    width: 100px;
-    height: 100px;
-    display: flex;
+nav a:hover {
+    text-decoration: underline;
 }
 
-main{
+button {
+    background-color: #00796b; /* Su yeşili koyu tonu */
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #004d40; /* Su yeşili daha koyu tonu */
+}
+
+main {
     font-family: 'Montreal', sans-serif;
     display: flex;
     justify-content: space-around;
@@ -42,14 +62,15 @@ main{
     padding-top: 2%;
 }
 
-.posts{
+.posts {
     display: block;
     padding: 1%;
     border: 1px groove silver;
     max-width: 50%;
     margin-right: 2%;
 }
-.post{
+
+.post {
     display: block;
     padding: 1%;
     border: 1px groove silver;
@@ -57,18 +78,26 @@ main{
     margin: 1%;
 }
 
-.categories{
+.categories {
     border: 1px groove silver;
     display: block;
     height: 55%;
     width: 25%;
     padding: 1%;
 }
+
 .category {
     width: 90%;
     display: block;
     border: 1px groove silver;
     padding: 10px;
-    text-decoration: none; /* Remove underline from links */
-    color: black; /* Set link text color */
+    text-decoration: none; /* Bağlantıların altını kaldır */
+    color: black; /* Bağlantı metni rengini ayarla */
+}
+
+.page_label {
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }

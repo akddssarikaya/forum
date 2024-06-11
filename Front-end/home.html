@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="utf-8" />
-    <title>Home</title>
+    <title>Ana Sayfa</title>
     <link rel="stylesheet" href="../styles/home.css">
     <link href="https://fonts.cdnfonts.com/css/montreal?styles=28831" rel="stylesheet">
 </head>
@@ -10,36 +10,41 @@
     <header>
         <div class="pages">
             <img class="logo_image" href="/" src="../docs/WG.png" alt="logo">
-            <a class="page_label" href="/">HomePage</a>
-            <a class="page_label" href="/category">Categories</a>
-            <a class="page_label" href="/create_post">CreatePost</a>
-            <a class="page_label" href="/profile">Profile</a>
+            <a class="page_label" href="/">Ana Sayfa</a>
+            <a class="page_label" href="/create_post">Gönderi Oluştur</a>
+            <a class="page_label" href="/profile">Profil</a>
+            {{if .ShowLoginRegister}}
             <a class="page_label" href="/login">Login</a>
             <a class="page_label" href="/register">Register</a>
+            {{else}}
+            <form action="/logout" method="post" class="logout_form">
+                <button type="submit">Çıkış Yap</button>
+            </form>
+        {{end}}
         </div>
     </header>
     <main>
         <div class="posts">
-            <h1>POSTS</h1>
+            <h1>Gönderiler</h1>
             <div class="post">
-                <h1>Welcome to the Forum! ITS A POST</h1>
-                <p>This is your go-to place for discussions and sharing ideas. Explore categories, create posts, and interact with the community.</p>
+                <h1>Forum'a Hoş Geldiniz! BU BİR GÖNDERİ</h1>
+                <p>Burası tartışmalar ve fikir alışverişi için gideceğiniz yer. Kategorilere göz atın, gönderiler oluşturun ve toplulukla etkileşim kurun.</p>
             </div>
             <div class="post">
-                <h1>Welcome to the Forum! ITS A POST</h1>
-                <p>This is your go-to place for discussions and sharing ideas. Explore categories, create posts, and interact with the community.</p>
+                <h1>Forum'a Hoş Geldiniz! BU BİR GÖNDERİ</h1>
+                <p>Burası tartışmalar ve fikir alışverişi için gideceğiniz yer. Kategorilere göz atın, gönderiler oluşturun ve toplulukla etkileşim kurun.</p>
             </div>
             <div class="post">
-                <h1>Welcome to the Forum! ITS A POST</h1>
-                <p>This is your go-to place for discussions and sharing ideas. Explore categories, create posts, and interact with the community.</p>
+                <h1>Forum'a Hoş Geldiniz! BU BİR GÖNDERİ</h1>
+                <p>Burası tartışmalar ve fikir alışverişi için gideceğiniz yer. Kategorilere göz atın, gönderiler oluşturun ve toplulukla etkileşim kurun.</p>
             </div>
             <div class="post">
-                <h1>Welcome to the Forum! ITS A POST</h1>
-                <p>This is your go-to place for discussions and sharing ideas. Explore categories, create posts, and interact with the community.</p>
+                <h1>Forum'a Hoş Geldiniz! BU BİR GÖNDERİ</h1>
+                <p>Burası tartışmalar ve fikir alışverişi için gideceğiniz yer. Kategorilere göz atın, gönderiler oluşturun ve toplulukla etkileşim kurun.</p>
             </div>
         </div>
         <div class="categories">
-            <h1>CATEGORIES</h1>
+            <h1>Kategoriler</h1>
             {{range .Categories}}
               <a class="category" href="{{.Link}}">{{.Name}}</a>
             {{end}}
