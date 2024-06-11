@@ -28,13 +28,11 @@
         </div>
         
         <div class="profil_details">  
-           
             <p><strong>Kullanıcı Adı:</strong> <span id="username">{{.Username}}</span></p>
             <p><strong>Email:</strong> <span id="email">{{.Email}}</span></p>
-            <p><strong>Gönderi Sayısı:</strong> <span id="gonderisayisi">{{.Gonderisayisi}}</span></p>
-            <p><strong>Beğeniler:</strong> <span id="likes">{{.Likes}}</span></p> 
+            <p><strong>Gönderi Sayısı:</strong> <span id="gonderisayisi">{{len .Posts}}</span></p>
+            <p><strong>Beğeniler:</strong> <span id="likes">{{.Likes}}</span></p>
             <p><strong>Beğenmeme:</strong> <span id="dislikes">{{.Dislikes}}</span></p>
-           
         </div>
         {{ if not .IsAdmin }}
         <a class="admin_link" href="panel">Admin Paneli Giriş</a>
@@ -44,7 +42,20 @@
     <div class="post_viewer">
         <h1>Kullanıcı Gönderileri:</h1>
         <div class="prof_posts">
-            <!-- Gönderiler burada listelenecek -->
+            {{ range .Posts }}
+            <div class="post">
+                <br>
+                <p><strong>Gönderi:</strong> {{.Content}}</p>
+                
+                {{ if .Image }}
+                <img src="{{.Image}}" alt="Post Image">
+                {{ end }}
+                <p><strong>Beğeniler:</strong> {{.Likes}}</p>
+                <p><strong>Beğenmeme:</strong> {{.Dislikes}}</p>
+                <p><strong>Oluşturulma Tarihi:</strong> {{.CreatedAt}}</p>
+                <br>
+            </div>
+            {{ end }}
         </div>
     </div>
 </body>

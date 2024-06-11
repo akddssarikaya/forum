@@ -35,9 +35,30 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := handlers.InsertOrUpdateProfile(db, userID, user.Username, user.Email); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	// Kullanıcı gönderilerini çekelim
+	rows, err := db.Query("SELECT id, user_id, content, image, created_at, total_likes, total_dislikes FROM posts WHERE user_id = ?", userID)
+	if err != nil {
+		http.Error(w, "Could not retrieve posts", http.StatusInternalServerError)
 		return
+	}
+	defer rows.Close()
+
+	var posts []handlers.Post
+	for rows.Next() {
+		var post handlers.Post
+
+		err := rows.Scan(&post.ID, &post.UserID, &post.Content, &post.Image, &post.CreatedAt, &post.Likes, &post.Dislikes)
+		if err != nil {
+			http.Error(w, "Could not scan post", http.StatusInternalServerError)
+			return
+		}
+
+		// Görüntü URL'sini oluşturun
+		if post.Image != "" {
+			post.Image = "/" + post.Image
+		}
+
+		posts = append(posts, post)
 	}
 
 	tmpl, ok := tmplCache["profile"]
@@ -46,10 +67,11 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Kullanıcı bilgilerini ve oturum durumunu template'e ekleyelim
+	// Kullanıcı bilgilerini ve gönderilerini template'e ekleyelim
 	tmpl.Execute(w, map[string]interface{}{
 		"Username": user.Username,
 		"Email":    user.Email,
 		"LoggedIn": true,
+		"Posts":    posts,
 	})
 }

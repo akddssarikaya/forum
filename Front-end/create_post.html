@@ -42,7 +42,7 @@
                     <td>
                         <select id="category" name="category" required>
                             {{range .Categories}}
-                            <option value="{{.Name}}">{{.Name}}</option>
+                            <option value="{{.ID}}">{{.Name}}</option>
                             {{end}}
                         </select>
                     </td>
@@ -53,13 +53,14 @@
                 </tr>
                 <tr>
                     {{if .LoggedIn}}
-    <td colspan="2" style="text-align: center;"><button type="submit">Gönderiyi Paylaş</button></td>
-    {{else}}
-    <td colspan="2" style="text-align: center;">Gönderi oluşturmak için <a href="/login">giriş yapın</a>.</td>
-     {{end}}
+                    <td colspan="2" style="text-align: center;"><button href="/create_post"type="submit">Gönderiyi Paylaş</button></td>
+                    {{else}}
+                    <td colspan="2" style="text-align: center;">Gönderi oluşturmak için <a href="/login">giriş yapın</a>.</td>
+                    {{end}}
                 </tr>
             </table>
         </form>
+       
     </div>
 </body>
 </html>

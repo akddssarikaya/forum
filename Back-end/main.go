@@ -50,8 +50,10 @@ func main() {
 	http.HandleFunc("/profile", models.HandleProfile)
 	http.HandleFunc("/panel", models.HandleAdmin)
 	http.HandleFunc("/logout", models.HandleLogout)
-	http.HandleFunc("/category", models.HandleCategory)
+	http.HandleFunc("/submit_post", models.HandleSubmitPost)
 	http.HandleFunc("/create_post", models.HandleCreatePost)
+	http.HandleFunc("/category", models.HandleCategory)
+	
 	log.Println("Server is running on http://localhost:8082")
 	log.Fatal(http.ListenAndServe(":8082", nil))
 }

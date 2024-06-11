@@ -1,5 +1,7 @@
 package handlers
 
+import "time"
+
 type User struct {
 	ID       int64
 	Email    string
@@ -11,9 +13,14 @@ type Category struct {
 	Name        string
 	Description string
 	Link        string
-	
 }
-type Post struct{
-    ID    int
-	
+type Post struct {
+	ID        int
+	UserID    int
+	Content   string
+	Image     string
+	Category  int
+	CreatedAt *time.Time
+	Likes     int
+	Dislikes  int
 }

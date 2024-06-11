@@ -2,7 +2,11 @@ package models
 
 import (
 	"database/sql"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
+	"time"
 
 	"forum/handlers"
 )
@@ -62,4 +66,79 @@ func HandleCreatePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Could not execute template", http.StatusInternalServerError)
 		return
 	}
+}
+
+func HandleSubmitPost(w http.ResponseWriter, r *http.Request) {
+	// Parse the form data
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		return
+	}
+
+	// Get form values
+
+	content := r.FormValue("content")
+	categoryID := r.FormValue("category")
+
+	// Get user_id from cookie
+	cookie, err := r.Cookie("user_id")
+	if err != nil {
+		http.Error(w, "User not logged in", http.StatusUnauthorized)
+		return
+	}
+	userID := cookie.Value
+
+	// Handle file upload
+	var imagePath string
+	file, handler, err := r.FormFile("image")
+	if err == nil {
+		defer file.Close()
+		// Ensure the uploads directory exists
+		if _, err := os.Stat("uploads"); os.IsNotExist(err) {
+			os.Mkdir("uploads", os.ModePerm)
+		}
+
+		// Create file
+		imagePath = filepath.Join("uploads", handler.Filename)
+		out, err := os.Create(imagePath)
+		if err != nil {
+			http.Error(w, "Unable to create the file for writing", http.StatusInternalServerError)
+			return
+		}
+		defer out.Close()
+
+		// Copy the file content
+		if _, err := io.Copy(out, file); err != nil {
+			http.Error(w, "Unable to save the file", http.StatusInternalServerError)
+			return
+		}
+	} else if err != http.ErrMissingFile {
+		http.Error(w, "Error uploading file", http.StatusInternalServerError)
+		return
+	}
+
+	// Insert post into the database
+	db, err := sql.Open("sqlite3", "./database/forum.db")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	stmt, err := db.Prepare("INSERT INTO posts (user_id, content, image, category_id, created_at) VALUES (?, ?, ?, ?, ?)")
+	if err != nil {
+		http.Error(w, "Error preparing query", http.StatusInternalServerError)
+		return
+	}
+	defer stmt.Close()
+
+	createdAt := time.Now()
+	_, err = stmt.Exec(userID, content, imagePath, categoryID, createdAt)
+	if err != nil {
+		http.Error(w, "Error executing query", http.StatusInternalServerError)
+		return
+	}
+
+	// Redirect to a confirmation page or back to the home page
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
