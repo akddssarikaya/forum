@@ -41,9 +41,9 @@
                     <td><label for="category">Kategori</label></td>
                     <td>
                         <select id="category" name="category" required>
-                            <option value="news">Haberler</option>
-                            <option value="blog">Blog</option>
-                            <option value="tutorial">Eğitim</option>
+                            {{range .Categories}}
+                            <option value="{{.Name}}">{{.Name}}</option>
+                            {{end}}
                         </select>
                     </td>
                 </tr>
