@@ -42,6 +42,9 @@ func main() {
 	// Handle form submission
 	http.Handle("/docs/", http.StripPrefix("/docs/", docsFs))
 
+	imageFs := http.FileServer(http.Dir("./uploads"))
+	http.Handle("/uploads/", http.StripPrefix("/uploads/", imageFs))
+
 	http.HandleFunc("/", models.HandleHome)
 	http.HandleFunc("/login", models.HandleLogin)
 	http.HandleFunc("/loginSubmit", models.HandleLoginPost)
@@ -53,7 +56,7 @@ func main() {
 	http.HandleFunc("/submit_post", models.HandleSubmitPost)
 	http.HandleFunc("/create_post", models.HandleCreatePost)
 	http.HandleFunc("/category", models.HandleCategory)
-	
+
 	log.Println("Server is running on http://localhost:8082")
 	log.Fatal(http.ListenAndServe(":8082", nil))
 }
