@@ -13,9 +13,14 @@
                 <a class="page_label" href="/">Ana Sayfa</a>
                 <a class="page_label" href="/create_post">Gönderi Oluştur</a>
                 <a class="page_label" href="/profile">Profil</a>
+                {{if .ShowLoginRegister}}
+                <a class="page_label" href="/login">Login</a>
+                <a class="page_label" href="/register">Register</a>
+                {{else}}
                 <form action="/logout" method="post" class="logout_form">
                     <button type="submit">Çıkış Yap</button>
                 </form>
+            {{end}}
             </nav>
         </div>
     </header>
@@ -47,7 +52,11 @@
                     <td><input type="file" id="image" name="image"></td>
                 </tr>
                 <tr>
-                    <td colspan="2" style="text-align: center;"><button type="submit">Gönderiyi Paylaş</button></td>
+                    {{if .LoggedIn}}
+    <td colspan="2" style="text-align: center;"><button type="submit">Gönderiyi Paylaş</button></td>
+    {{else}}
+    <td colspan="2" style="text-align: center;">Gönderi oluşturmak için <a href="/login">giriş yapın</a>.</td>
+     {{end}}
                 </tr>
             </table>
         </form>
