@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <title>Gönderi Oluştur</title>
+    <link rel="stylesheet" href="styles/create_post.css">
+</head>
+<body>
+    <header>
+        <div class="pages">
+            <img class="logo_image" src="/docs/WG.png" alt="logo">
+            <nav>
+                <a class="page_label" href="/">Ana Sayfa</a>
+                <a class="page_label" href="/category">Kategoriler</a>
+                <a class="page_label" href="/create_post">Gönderi Oluştur</a>
+                <a class="page_label" href="/profile">Profil</a>
+            
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>Yeni Gönderi Oluştur</h1>
+        <form action="/submit_post" method="POST" enctype="multipart/form-data">
+            <table>
+                <tr>
+                    <td><label for="title">Gönderi Başlığı</label></td>
+                    <td><input type="text" id="title" name="title" required></td>
+                </tr>
+                <tr>
+                    <td><label for="content">İçerik</label></td>
+                    <td><textarea id="content" name="content" rows="10" required></textarea></td>
+                </tr>
+                <tr>
+                    <td><label for="category">Kategori</label></td>
+                    <td>
+                        <select id="category" name="category" required>
+                            <option value="news">Haberler</option>
+                            <option value="blog">Blog</option>
+                            <option value="tutorial">Eğitim</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="image">Resim Yükle</label></td>
+                    <td><input type="file" id="image" name="image"></td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align: center;"><button type="submit">Gönderiyi Paylaş</button></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</body>
+</html>

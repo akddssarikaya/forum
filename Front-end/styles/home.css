@@ -64,10 +64,11 @@ main{
     width: 25%;
     padding: 1%;
 }
-.category{
+.category {
     width: 90%;
     display: block;
     border: 1px groove silver;
     padding: 10px;
-
+    text-decoration: none; /* Remove underline from links */
+    color: black; /* Set link text color */
 }

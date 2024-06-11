@@ -39,12 +39,10 @@
             </div>
         </div>
         <div class="categories">
-                <h1>CATEGORIES</h1> 
-                <p class="category"> ITS A CATEGORY DEMO 1</p>
-                <p class="category"> ITS A CATEGORY DEMO 2</p>
-                <p class="category"> ITS A CATEGORY DEMO 3</p>
-                <p class="category"> ITS A CATEGORY DEMO 4</p>
-                <p class="category"> ITS A CATEGORY DEMO 5</p>
+            <h1>CATEGORIES</h1>
+            {{range .Categories}}
+              <a class="category" href="{{.Link}}">{{.Name}}</a>
+            {{end}}
         </div>
     </main>
     <script src="../scripts/main.js"></script>

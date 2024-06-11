@@ -15,7 +15,7 @@ func CreateCategoryTable(database *sql.DB) {
 	);
 	
 	`
-_, err := database.Exec(CreateCategoryTable)
+	_, err := database.Exec(CreateCategoryTable)
 	if err != nil {
 		log.Fatalf("User profile table creation failed: %s", err)
 	}
@@ -105,5 +105,41 @@ func CreateLikesTable(database *sql.DB) {
 	_, err := database.Exec(createLikesTable)
 	if err != nil {
 		log.Fatalf("Likes table creation failed: %s", err)
+	}
+
+	createTrigger := `
+	CREATE TRIGGER IF NOT EXISTS update_likes_after_insert
+	AFTER INSERT ON likes
+	FOR EACH ROW
+	BEGIN
+		UPDATE profile
+		SET total_likes = total_likes + NEW.like_count,
+			total_dislikes = total_dislikes + NEW.dislike_count
+		WHERE user_id = NEW.user_id;
+	END;
+
+	CREATE TRIGGER IF NOT EXISTS update_likes_after_update
+	AFTER UPDATE ON likes
+	FOR EACH ROW
+	BEGIN
+		UPDATE profile
+		SET total_likes = total_likes + NEW.like_count - OLD.like_count,
+			total_dislikes = total_dislikes + NEW.dislike_count - OLD.dislike_count
+		WHERE user_id = NEW.user_id;
+	END;
+
+	CREATE TRIGGER IF NOT EXISTS update_likes_after_delete
+	AFTER DELETE ON likes
+	FOR EACH ROW
+	BEGIN
+		UPDATE profile
+		SET total_likes = total_likes - OLD.like_count,
+			total_dislikes = total_dislikes - OLD.dislike_count
+		WHERE user_id = OLD.user_id;
+	END;
+	`
+	_, err = database.Exec(createTrigger)
+	if err != nil {
+		log.Fatalf("Trigger creation failed: %s", err)
 	}
 }

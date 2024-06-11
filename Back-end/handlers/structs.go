@@ -11,4 +11,9 @@ type Category struct {
 	Name        string
 	Description string
 	Link        string
+	
+}
+type Post struct{
+    ID    int
+	
 }
