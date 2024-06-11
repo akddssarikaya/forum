@@ -43,6 +43,16 @@
     border-radius: 34px;
     box-shadow: 0px 4px 4px #0000003d;
 }
+.desktop-screen .overlap-group-3 {
+    position: absolute;
+    width: 191px;
+    height: 68px;
+    top: 72px;
+    left: 1250px;
+    background-color: #40adb4;
+    border-radius: 34px;
+    box-shadow: 0px 4px 4px #0000003d;
+}
 .desktop-screen .text-wrapper-2 {
     position: absolute;
     top: 11px;
@@ -181,15 +191,59 @@
     height: 30px;
     align-items: center;
     gap: 16px;
-    padding: 8px 16px;
     position: absolute;
     top: 97px;
     left: 151px;
-    background-color: #ffffff;
+    background-color: #40adb4;
     border-radius: 8px;
     border: 1px solid;
-    border-color: #dfdfdf;
-    box-shadow: 0px 4px 4px #00000040;
+    border-color: #40adb4;
+    color: white;
+}
+.desktop-screen .label-wrapper {
+    width: 330px;
+    top: 207px;
+    display: flex;
+    height: 30px;
+    align-items: center;
+    gap: 16px;
+    position: absolute;
+    left: 151px;
+    background-color: #40adb4;
+    border-radius: 8px;
+    border: 1px solid;
+    border-color: #40adb4;
+    color: white;
+}
+.desktop-screen .div-wrapper {
+    width: 330px;
+    top: 312px;
+    display: flex;
+    height: 30px;
+    align-items: center;
+    gap: 16px;
+    position: absolute;
+    left: 151px;
+    background-color: #40adb4;
+    border-radius: 8px;
+    border: 1px solid;
+    border-color: #40adb4;
+    color: white;
+}
+.desktop-screen .element-input-field-2 {
+    width: 330px;
+    top: 427px;
+    display: flex;
+    height: 30px;
+    align-items: center;
+    gap: 16px;
+    position: absolute;
+    left: 151px;
+    background-color: #40adb4;
+    border-radius: 8px;
+    border: 1px solid;
+    border-color: #40adb4;
+    color: white;
 }
 .desktop-screen .label {
     position: relative;
@@ -260,54 +314,9 @@
     padding: 0;
     outline: none;
 }
-.desktop-screen .label-wrapper {
-    width: 330px;
-    top: 207px;
-    display: flex;
-    height: 30px;
-    align-items: center;
-    gap: 16px;
-    padding: 8px 16px;
-    position: absolute;
-    left: 151px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    border: 1px solid;
-    border-color: #dfdfdf;
-    box-shadow: 0px 4px 4px #00000040;
-}
-.desktop-screen .div-wrapper {
-    width: 276px;
-    top: 312px;
-    display: flex;
-    height: 30px;
-    align-items: center;
-    gap: 16px;
-    padding: 8px 16px;
-    position: absolute;
-    left: 151px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    border: 1px solid;
-    border-color: #dfdfdf;
-    box-shadow: 0px 4px 4px #00000040;
-}
-.desktop-screen .element-input-field-2 {
-    width: 276px;
-    top: 427px;
-    display: flex;
-    height: 30px;
-    align-items: center;
-    gap: 16px;
-    padding: 8px 16px;
-    position: absolute;
-    left: 151px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    border: 1px solid;
-    border-color: #dfdfdf;
-    box-shadow: 0px 4px 4px #00000040;
-}
+
+
+
 .desktop-screen .text-wrapper-8 {
     position: absolute;
     top: 792px;

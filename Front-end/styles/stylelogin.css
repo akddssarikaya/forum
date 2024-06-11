@@ -13,21 +13,35 @@
   position: relative;
 }
 
+.desktop-screen .overlap-home {
+  position: absolute;
+  width: 191px;
+  height: 68px;
+  top: 72px;
+  left: 693px; /* Adjusted the position to be before REGISTER */
+  background-color: #40adb4;
+  border-radius: 34px;
+  box-shadow: 0px 4px 4px #0000003d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .desktop-screen .overlap {
   position: absolute;
   width: 191px;
   height: 68px;
   top: 72px;
-  left: 901px;
+  left: 901px; /* Adjusted to be next to HOME */
   background-color: #40adb4;
   border-radius: 34px;
   box-shadow: 0px 4px 4px #0000003d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .desktop-screen .text-wrapper {
-  position: absolute;
-  top: 11px;
-  left: 25px;
   font-family: "Poppins", Helvetica;
   font-weight: 400;
   color: #ffffff;
@@ -45,12 +59,12 @@
   background-color: #0709a3;
   border-radius: 34px;
   box-shadow: 0px 4px 4px #0000003d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .desktop-screen .text-wrapper-2 {
-  position: absolute;
-  top: 11px;
-  left: 51px;
   font-family: "Poppins", Helvetica;
   font-weight: 400;
   color: #ffffff;
@@ -58,6 +72,12 @@
   letter-spacing: 0;
   line-height: normal;
 }
+
+
+
+
+
+
 
 .desktop-screen .overlap-group-2 {
   position: absolute;
