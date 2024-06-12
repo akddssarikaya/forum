@@ -25,23 +25,23 @@
     </header>
     <main>
         <div class="posts">
-            <h1>Gönderiler</h1>
+            {{ range .Posts }}
             <div class="post">
-                <h1>Forum'a Hoş Geldiniz! BU BİR GÖNDERİ</h1>
-                <p>Burası tartışmalar ve fikir alışverişi için gideceğiniz yer. Kategorilere göz atın, gönderiler oluşturun ve toplulukla etkileşim kurun.</p>
+                <br>
+                <h1>{{.Title}}</h1>
+                <p><strong>Gönderi:</strong> {{.Content}}</p>
+                
+                {{ if .Image }}
+                <img src="{{.Image}}" alt="Post Image">
+                {{ end }}
+                <p><strong>Beğeniler:</strong> {{.Likes}}</p>
+                <p><strong>Beğenmeme:</strong> {{.Dislikes}}</p>
+                <p><strong>Oluşturulma Tarihi:</strong> {{.CreatedAt}}</p>
+                <p><strong>Oluşturan Hesap:</strong> {{.Username}}</p>
+                <br>
+                
             </div>
-            <div class="post">
-                <h1>Forum'a Hoş Geldiniz! BU BİR GÖNDERİ</h1>
-                <p>Burası tartışmalar ve fikir alışverişi için gideceğiniz yer. Kategorilere göz atın, gönderiler oluşturun ve toplulukla etkileşim kurun.</p>
-            </div>
-            <div class="post">
-                <h1>Forum'a Hoş Geldiniz! BU BİR GÖNDERİ</h1>
-                <p>Burası tartışmalar ve fikir alışverişi için gideceğiniz yer. Kategorilere göz atın, gönderiler oluşturun ve toplulukla etkileşim kurun.</p>
-            </div>
-            <div class="post">
-                <h1>Forum'a Hoş Geldiniz! BU BİR GÖNDERİ</h1>
-                <p>Burası tartışmalar ve fikir alışverişi için gideceğiniz yer. Kategorilere göz atın, gönderiler oluşturun ve toplulukla etkileşim kurun.</p>
-            </div>
+            {{ end }}  
         </div>
         <div class="categories">
             <h1>Kategoriler</h1>

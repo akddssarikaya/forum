@@ -44,6 +44,41 @@ func HandleHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	rows1, err := db.Query("SELECT id, user_id, content, image, category_id,  created_at, total_likes, total_dislikes FROM posts ")
+	if err != nil {
+		http.Error(w, "Could not retrieve posts", http.StatusInternalServerError)
+		return
+	}
+	defer rows1.Close()
+
+	var posts []handlers.Post
+	for rows1.Next() {
+		var post handlers.Post
+
+		err := rows1.Scan(&post.ID, &post.UserID, &post.Content, &post.Image, &post.Category, &post.CreatedAt, &post.Likes, &post.Dislikes)
+		if err != nil {
+			http.Error(w, "Could not scan post", http.StatusInternalServerError)
+			return
+		}
+		err = db.QueryRow("SELECT name FROM categories WHERE id = ?", post.Category).Scan(&post.Title)
+		if err != nil {
+			http.Error(w, "Title not found", http.StatusInternalServerError)
+			return
+		}
+		err = db.QueryRow("SELECT username FROM users WHERE id = ?", post.UserID).Scan(&post.Username)
+		if err != nil {
+			http.Error(w, "user not found", http.StatusInternalServerError)
+			return
+		}
+
+		// Görüntü URL'sini oluşturun
+		if post.Image != "" {
+			post.Image = "/" + post.Image
+		}
+
+		posts = append(posts, post)
+	}
+
 	// Kullanıcı giriş yapmış mı diye kontrol edelim
 	_, err = r.Cookie("user_id")
 	loggedIn := err == nil
@@ -52,6 +87,7 @@ func HandleHome(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"LoggedIn":   loggedIn,
 		"Categories": categories,
+		"Posts":      posts,
 	}
 
 	// Kullanıcı giriş yapmamışsa Login ve Register bağlantılarını ekle
