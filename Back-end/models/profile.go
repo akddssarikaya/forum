@@ -34,7 +34,6 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "User not found", http.StatusInternalServerError)
 		return
 	}
-
 	// Kullanıcı gönderilerini çekelim
 	rows, err := db.Query("SELECT id, user_id, content, image, category_id,  created_at, total_likes, total_dislikes FROM posts WHERE user_id = ?", userID)
 	if err != nil {
@@ -76,6 +75,7 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, map[string]interface{}{
 		"Username": user.Username,
 		"Email":    user.Email,
+
 		"LoggedIn": true,
 		"Posts":    posts,
 	})

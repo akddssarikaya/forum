@@ -94,54 +94,16 @@ func CreateCommentsTable(database *sql.DB) {
 func CreateLikesTable(database *sql.DB) {
 	createLikesTable := `
 	CREATE TABLE IF NOT EXISTS likes (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		user_id INTEGER NOT NULL,
-		post_id INTEGER,
-		comment_id INTEGER,
-		like_count INTEGER DEFAULT 0,
-		dislike_count INTEGER DEFAULT 0,
-		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-		FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-		FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE
-	);`
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    post_id INTEGER NOT NULL,
+    like_type TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+);
+`
 	_, err := database.Exec(createLikesTable)
 	if err != nil {
 		log.Fatalf("Likes table creation failed: %s", err)
-	}
-
-	createTrigger := `
-	CREATE TRIGGER IF NOT EXISTS update_likes_after_insert
-	AFTER INSERT ON likes
-	FOR EACH ROW
-	BEGIN
-		UPDATE profile
-		SET total_likes = total_likes + NEW.like_count,
-			total_dislikes = total_dislikes + NEW.dislike_count
-		WHERE user_id = NEW.user_id;
-	END;
-
-	CREATE TRIGGER IF NOT EXISTS update_likes_after_update
-	AFTER UPDATE ON likes
-	FOR EACH ROW
-	BEGIN
-		UPDATE profile
-		SET total_likes = total_likes + NEW.like_count - OLD.like_count,
-			total_dislikes = total_dislikes + NEW.dislike_count - OLD.dislike_count
-		WHERE user_id = NEW.user_id;
-	END;
-
-	CREATE TRIGGER IF NOT EXISTS update_likes_after_delete
-	AFTER DELETE ON likes
-	FOR EACH ROW
-	BEGIN
-		UPDATE profile
-		SET total_likes = total_likes - OLD.like_count,
-			total_dislikes = total_dislikes - OLD.dislike_count
-		WHERE user_id = OLD.user_id;
-	END;
-	`
-	_, err = database.Exec(createTrigger)
-	if err != nil {
-		log.Fatalf("Trigger creation failed: %s", err)
 	}
 }

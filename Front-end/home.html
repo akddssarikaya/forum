@@ -20,7 +20,7 @@
             <form action="/logout" method="post" class="logout_form">
                 <button type="submit">Çıkış Yap</button>
             </form>
-        {{end}}
+            {{end}}
         </div>
     </header>
     <main>
@@ -38,6 +38,19 @@
                 <p><strong>Beğenmeme:</strong> {{.Dislikes}}</p>
                 <p><strong>Oluşturulma Tarihi:</strong> {{.CreatedAt}}</p>
                 <p><strong>Oluşturan Hesap:</strong> {{.Username}}</p>
+                {{ if $.LoggedIn }}
+                <form method="post" action="/like" style="display:inline;">
+                    <input type="hidden" name="postId" value="{{.ID}}">
+                    <button type="submit">Beğen</button>
+                </form>
+                <form method="post" action="/dislike" style="display:inline;">
+                    <input type="hidden" name="postId" value="{{.ID}}">
+                    <button type="submit">Beğenme</button>
+                </form>
+                {{else}}
+                <div class="alert" >Begeni icin <a href="/login">giris yapin</a></div>
+                {{ end }}
+              
                 <br>
                 
             </div>

@@ -26,3 +26,12 @@ type Post struct {
 	Likes     int
 	Dislikes  int
 }
+type Profile struct {
+	ID             int
+	UserID         int
+	Username       string
+	Email          string
+	Last_login     *time.Location
+	Total_likes    int
+	Total_dislikes int
+}
