@@ -67,7 +67,7 @@ main {
     padding: 1%;
     border: 1px groove silver;
     max-width: 50%;
-    margin-right: 2%;
+    margin-right: 0.5%;
 }
 
 .post {
@@ -76,6 +76,14 @@ main {
     border: 1px groove silver;
     max-width: 100%;
     margin: 1%;
+}
+
+.post img {
+    width: 100%; /* Adjust as necessary */
+    height: auto; /* Maintains aspect ratio */
+    max-width: 500px; /* Maximum width of the image */
+    display: block;
+    margin: 0 auto;
 }
 
 .categories {
