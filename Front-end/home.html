@@ -30,14 +30,28 @@
                 <br>
                 <h1>{{.Title}}</h1>
                 <p><strong>Gönderi:</strong> {{.Content}}</p>
-                
+                <p><strong>Oluşturan Hesap:</strong> {{.Username}}</p>
                 {{ if .Image }}
                 <img src="{{.Image}}" alt="Post Image">
                 {{ end }}
                 <p><strong>Beğeniler:</strong> {{.Likes}}</p>
                 <p><strong>Beğenmeme:</strong> {{.Dislikes}}</p>
                 <p><strong>Oluşturulma Tarihi:</strong> {{.CreatedAt}}</p>
-                <p><strong>Oluşturan Hesap:</strong> {{.Username}}</p>
+
+                <div class="comments-container">
+                    <p>YORUMLAR:{{len .Comments}}</p>
+                    <button class="toggle-comments">Göster/Gizle</button> 
+                        <div class="comments">
+                        {{ range .Comments }}
+                        <div class="comment">
+                            <p><em>Kullanıcı : {{ .Username }}</em></p>
+                            <p>Yorum : {{ .Content }}</p>
+                            <p>Oluşturma Tarihi : {{ .CreatedAt }}</p>
+                        </div>
+                        {{ end }}
+                    </div>
+                </div>
+<br>
                 {{ if $.LoggedIn }}
                 <form method="post" action="/like" style="display:inline;">
                     <input type="hidden" name="postId" value="{{.ID}}">
@@ -47,22 +61,62 @@
                     <input type="hidden" name="postId" value="{{.ID}}">
                     <button type="submit">Beğenme</button>
                 </form>
+                <form class="comment_form" method="post" data-post-id="{{.ID}}">
+                    <input type="hidden" name="postId" value="{{.ID}}">
+                    <textarea name="comment" placeholder="Yorumunuzu buraya girin..." required></textarea>
+                    <button type="submit">Yorum Yap</button>
+                </form>
                 {{else}}
-                <div class="alert" >Begeni icin <a href="/login">giris yapin</a></div>
+                <div class="alert">Begeni yada yorum icin <a href="/login">giris yapin</a></div>
                 {{ end }}
-              
                 <br>
-                
             </div>
             {{ end }}  
+            
         </div>
         <div class="categories">
             <h1>Kategoriler</h1>
             {{range .Categories}}
-              <a class="category" href="{{.Link}}">#{{.Name}}</a>
+            <a class="category" href="{{.Link}}">#{{.Name}}</a>
             {{end}}
         </div>
     </main>
-    <script src="../scripts/main.js"></script>
+    <script>
+     document.addEventListener("DOMContentLoaded", function () {
+            document.body.addEventListener("click", function (event) {
+                if (event.target.classList.contains("toggle-comments")) {
+                    const commentsContainer = event.target.nextElementSibling;
+                    commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+                }
+            });
+
+            document.querySelectorAll(".comment_form").forEach(form => {
+                form.addEventListener("submit", function (e) {
+                    
+                    const postId = this.dataset.postId;
+                    const formData = new FormData(this);
+
+                    fetch("/comment", {
+                        method: "POST",
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message === "Comment posted successfully") {
+                            const commentsContainer = this.previousElementSibling.querySelector(".comments");
+                            const newComment = document.createElement("div");
+                            newComment.classList.add("comment");
+                            newComment.innerHTML = `<p><em>YourUsername</em></p><p>${formData.get("comment")}</p><p>Just now</p>`;
+                            commentsContainer.appendChild(newComment);
+                            this.reset();
+                        } else {
+                            alert("Failed to post comment");
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+                });
+            });
+        });
+    </script> 
 </body>
 </html>

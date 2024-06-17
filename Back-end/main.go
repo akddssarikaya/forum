@@ -58,7 +58,7 @@ func main() {
 	http.HandleFunc("/category", models.HandleCategory)
 	http.HandleFunc("/like", models.LikePost)
 	http.HandleFunc("/dislike", models.DislikePost)
-
+	http.HandleFunc("/comment", models.CommentPost)
 	log.Println("Server is running on http://localhost:8082")
 	log.Fatal(http.ListenAndServe(":8082", nil))
 }

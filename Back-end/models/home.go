@@ -44,7 +44,8 @@ func HandleHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows1, err := db.Query("SELECT id, user_id, content, image, category_id,  created_at, total_likes, total_dislikes FROM posts ")
+	// Gönderileri çekmek için sorgu
+	rows1, err := db.Query("SELECT id, user_id, content, image, category_id, created_at, total_likes, total_dislikes FROM posts")
 	if err != nil {
 		http.Error(w, "Could not retrieve posts", http.StatusInternalServerError)
 		return
@@ -67,7 +68,7 @@ func HandleHome(w http.ResponseWriter, r *http.Request) {
 		}
 		err = db.QueryRow("SELECT username FROM users WHERE id = ?", post.UserID).Scan(&post.Username)
 		if err != nil {
-			http.Error(w, "user not found", http.StatusInternalServerError)
+			http.Error(w, "User not found", http.StatusInternalServerError)
 			return
 		}
 
@@ -75,6 +76,32 @@ func HandleHome(w http.ResponseWriter, r *http.Request) {
 		if post.Image != "" {
 			post.Image = "/" + post.Image
 		}
+
+		// Yorumları çekmek için sorgu
+		rows2, err := db.Query("SELECT id, post_id, user_id, content, created_at FROM comments WHERE post_id = ?", post.ID)
+		if err != nil {
+			http.Error(w, "Could not retrieve comments", http.StatusInternalServerError)
+			return
+		}
+		defer rows2.Close()
+
+		var comments []handlers.Comment
+		for rows2.Next() {
+			var comment handlers.Comment
+			err := rows2.Scan(&comment.ID, &comment.PostID, &comment.UserID, &comment.Content, &comment.CreatedAt)
+			if err != nil {
+				http.Error(w, "Could not scan comment", http.StatusInternalServerError)
+				return
+			}
+			err = db.QueryRow("SELECT username FROM users WHERE id = ?", comment.UserID).Scan(&comment.Username)
+			if err != nil {
+				http.Error(w, "User not found for comment", http.StatusInternalServerError)
+				return
+			}
+			comments = append(comments, comment)
+		}
+
+		post.Comments = comments // Post yapısına yorumları ekleyin
 
 		posts = append(posts, post)
 	}

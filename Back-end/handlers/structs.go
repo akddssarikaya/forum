@@ -25,6 +25,7 @@ type Post struct {
 	CreatedAt *time.Time
 	Likes     int
 	Dislikes  int
+	Comments  []Comment // Yorumları ekleyin
 }
 type Profile struct {
 	ID             int
@@ -34,4 +35,12 @@ type Profile struct {
 	Last_login     *time.Location
 	Total_likes    int
 	Total_dislikes int
+}
+type Comment struct {
+	ID        int
+	PostID    int
+	UserID    int
+	Content   string
+	CreatedAt string
+	Username  string
 }
