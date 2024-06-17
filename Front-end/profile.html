@@ -45,7 +45,8 @@
             {{ range .Posts }}
             <div class="post">
                 <br>
-                <h1>{{.Title}}</h1>
+                <h1>{{.CategoryName}}</h1>
+                <h2>{{.Title}}</h2>
                 <p><strong>Gönderi:</strong> {{.Content}}</p>
                 
                 {{ if .Image }}

@@ -15,17 +15,18 @@ type Category struct {
 	Link        string
 }
 type Post struct {
-	ID        int
-	UserID    int
-	Username  string
-	Title     string
-	Content   string
-	Image     string
-	Category  int
-	CreatedAt *time.Time
-	Likes     int
-	Dislikes  int
-	Comments  []Comment // Yorumları ekleyin
+	ID           int
+	UserID       int
+	Username     string
+	Title        string
+	Content      string
+	Image        string
+	Category     int
+	CategoryName string
+	CreatedAt    *time.Time
+	Likes        int
+	Dislikes     int
+	Comments     []Comment // Yorumları ekleyin
 }
 type Profile struct {
 	ID             int

@@ -39,15 +39,15 @@ func HandleViewPost(w http.ResponseWriter, r *http.Request) {
 
 	// Gönderi bilgilerini çekme
 	var post handlers.Post
-	err = db.QueryRow("SELECT id, user_id, content, image, category_id, created_at, total_likes, total_dislikes FROM posts WHERE id = ?", postID).Scan(
-		&post.ID, &post.UserID, &post.Content, &post.Image, &post.Category, &post.CreatedAt, &post.Likes, &post.Dislikes)
+	err = db.QueryRow("SELECT id, user_id, title, content, image, category_id, created_at, total_likes, total_dislikes FROM posts WHERE id = ?", postID).Scan(
+		&post.ID, &post.UserID, &post.Title, &post.Content, &post.Image, &post.Category, &post.CreatedAt, &post.Likes, &post.Dislikes)
 	if err != nil {
 		http.Error(w, "Post not found", http.StatusNotFound)
 		return
 	}
 
 	// Gönderi başlığını ve oluşturan kullanıcı adını al
-	err = db.QueryRow("SELECT name FROM categories WHERE id = ?", post.Category).Scan(&post.Title)
+	err = db.QueryRow("SELECT name FROM categories WHERE id = ?", post.Category).Scan(&post.CategoryName)
 	if err != nil {
 		http.Error(w, "Category not found", http.StatusInternalServerError)
 		return

@@ -78,6 +78,7 @@ func HandleSubmitPost(w http.ResponseWriter, r *http.Request) {
 	// Get form values
 
 	content := r.FormValue("content")
+	title:=r.FormValue("title")
 	categoryID := r.FormValue("category")
 
 	// Get user_id from cookie
@@ -125,7 +126,7 @@ func HandleSubmitPost(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	stmt, err := db.Prepare("INSERT INTO posts (user_id, content, image, category_id, created_at) VALUES (?, ?, ?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO posts (user_id, title, content, image, category_id, created_at) VALUES (?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		http.Error(w, "Error preparing query", http.StatusInternalServerError)
 		return
@@ -133,7 +134,7 @@ func HandleSubmitPost(w http.ResponseWriter, r *http.Request) {
 	defer stmt.Close()
 
 	createdAt := time.Now()
-	_, err = stmt.Exec(userID, content, imagePath, categoryID, createdAt)
+	_, err = stmt.Exec(userID, title, content, imagePath, categoryID, createdAt)
 	if err != nil {
 		http.Error(w, "Error executing query", http.StatusInternalServerError)
 		return

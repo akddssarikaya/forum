@@ -35,7 +35,7 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Kullanıcı gönderilerini çekelim
-	rows, err := db.Query("SELECT id, user_id, content, image, category_id,  created_at, total_likes, total_dislikes FROM posts WHERE user_id = ?", userID)
+	rows, err := db.Query("SELECT id, user_id, title, content, image, category_id,  created_at, total_likes, total_dislikes FROM posts WHERE user_id = ?", userID)
 	if err != nil {
 		http.Error(w, "Could not retrieve posts", http.StatusInternalServerError)
 		return
@@ -46,12 +46,12 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var post handlers.Post
 
-		err := rows.Scan(&post.ID, &post.UserID, &post.Content, &post.Image, &post.Category, &post.CreatedAt, &post.Likes, &post.Dislikes)
+		err := rows.Scan(&post.ID, &post.UserID, &post.Title, &post.Content, &post.Image, &post.Category, &post.CreatedAt, &post.Likes, &post.Dislikes)
 		if err != nil {
 			http.Error(w, "Could not scan post", http.StatusInternalServerError)
 			return
 		}
-		err = db.QueryRow("SELECT name FROM categories WHERE id = ?", post.Category).Scan(&post.Title)
+		err = db.QueryRow("SELECT name FROM categories WHERE id = ?", post.Category).Scan(&post.CategoryName)
 		if err != nil {
 			http.Error(w, "Title not found", http.StatusInternalServerError)
 			return

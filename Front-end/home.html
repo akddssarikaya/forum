@@ -27,7 +27,8 @@
         <div class="posts">
             {{ range .Posts }}
             <div class="post" data-post-id="{{.ID}}">
-                <h1>{{.Title}}</h1>
+                <h1>{{.CategoryName}}</h1>
+                <h2>{{.Title}}</h2>
                 <p><strong>Gönderi:</strong> {{.Content}}</p>
                 <p><strong>Oluşturan Hesap:</strong> {{.Username}}</p>
                 {{ if .Image }}
