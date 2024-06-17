@@ -45,3 +45,9 @@ type Comment struct {
 	CreatedAt string
 	Username  string
 }
+type Likes struct{
+	ID    int
+	PostID int
+	UserID int
+	LikeType string
+}

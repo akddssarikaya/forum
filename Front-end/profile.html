@@ -39,7 +39,13 @@
         {{ end }}
     </div>
     
-    <div class="post_viewer">
+    <div class="tabs">
+        <button class="tablinks" onclick="openTab(event, 'posts')">Gönderiler</button>
+        <button class="tablinks" onclick="openTab(event, 'likes')">Etkileşimde Bulunulan Gönderiler</button>
+        <button class="tablinks" onclick="openTab(event, 'comments')">Yorumlar</button>
+    </div>
+
+    <div id="posts" class="tabcontent">
         <h1>Kullanıcı Gönderileri:</h1>
         <div class="prof_posts">
             {{ range .Posts }}
@@ -60,5 +66,32 @@
             {{ end }}
         </div>
     </div>
+
+    <div id="likes" class="tabcontent">
+        <h1>Kullanıcının Beğendikleri:</h1>
+        <!-- Beğenilen gönderiler burada gösterilecek -->
+    </div>
+
+    <div id="comments" class="tabcontent">
+        <h1>Kullanıcının Yorumları:</h1>
+        <!-- Kullanıcının yorum yaptığı gönderiler burada gösterilecek -->
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        document.getElementsByClassName('tablinks')[0].click();  // İlk sekmenin açık olarak başlaması
+    </script>
 </body>
 </html>
