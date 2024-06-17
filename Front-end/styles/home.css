@@ -18,14 +18,22 @@ header {
     width: 80%;
     margin: 0 auto;
 }
+.page_label {
+    text-decoration: none;
+    color: white; /* Set text color to white */
+    font-size: 20px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
 .comment_form {
     margin-top: 20px;
 }
+
 .success_message {
     color: green;
     font-weight: bold;
     margin-top: 10px;
 }
+
 .comment_form textarea {
     width: 100%;
     min-height: 100px;
@@ -53,11 +61,11 @@ header {
     cursor: pointer;
     border-radius: 5px;
 }
+
 .comment_form textarea:focus {
     border-color: #0709a3;
     outline: none;
 }
-
 
 .comment_form button {
     margin-top: 10px;
@@ -69,7 +77,6 @@ header {
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
-
 
 .comment_form button:hover {
     background-color: #0056b3;
@@ -90,6 +97,8 @@ nav {
 nav a {
     color: #fff;
     text-decoration: none;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; /* Apply font family */
+    font-size: 20px; /* Apply font size */
 }
 
 nav a:hover {
@@ -112,17 +121,14 @@ button:hover {
 main {
     font-family: 'Montreal', sans-serif;
     display: flex;
-    justify-content: space-around;
-    padding-left: 10%;
-    padding-right: 10%;
-    padding-top: 2%;
+    justify-content: space-between; /* Adjusted to space-between */
+    padding: 2% 10%; /* Adjusted padding */
 }
 
 .posts {
-    display: block;
+    flex: 1; /* Adjusted to take remaining space */
     padding: 1%;
     border: 1px groove silver;
-    max-width: 50%;
     margin-right: 0.5%;
 }
 
@@ -130,8 +136,13 @@ main {
     display: block;
     padding: 1%;
     border: 1px groove silver;
-    max-width: 100%;
     margin: 1%;
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Smooth background color transition */
+}
+
+.post:hover {
+    background-color: #f0f0f0; /* Light gray background on hover */
 }
 
 .post img {
@@ -143,21 +154,19 @@ main {
 }
 
 .categories {
+    flex: 0 0 25%; /* Fixed width */
     border: 1px groove silver;
-    display: block;
-    height: 55%;
-    width: 25%;
     padding: 1%;
 }
 
 .category {
-    width: 90%;
     display: block;
     border: 1px groove silver;
     padding: 10px;
     text-decoration: none; /* Bağlantıların altını kaldır */
     color: black; /* Bağlantı metni rengini ayarla */
 }
+
 .alert {
     color: #721c24;
     background-color: #f8d7da;
@@ -167,12 +176,6 @@ main {
     border: 1px solid transparent;
     border-radius: 4px;
     text-align: center;
-}
-.page_label {
-    text-decoration: none;
-    color: white;
-    font-size: 20px;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
 .like-dislike-buttons {

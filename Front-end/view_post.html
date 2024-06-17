@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gönderi Detayı</title>
+    <link rel="stylesheet" href="../styles/view_post.css">
+    <link href="https://fonts.cdnfonts.com/css/montreal?styles=28831" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="pages">
+            <img class="logo_image" src="../docs/WG.png" alt="logo">
+            <a class="page_label" href="/">Ana Sayfa</a>
+            <a class="page_label" href="/create_post">Gönderi Oluştur</a>
+            <a class="page_label" href="/profile">Profil</a>
+            {{if .ShowLoginRegister}}
+            <a class="page_label" href="/login">Login</a>
+            <a class="page_label" href="/register">Register</a>
+            {{else}}
+            <form action="/logout" method="post" class="logout_form">
+                <button type="submit">Çıkış Yap</button>
+            </form>
+            {{end}}
+        </div>
+    </header>
+    <main>
+        <div class="post-details">
+            <h1>{{ .Post.Title }}</h1>
+            <p><strong>Gönderi:</strong> {{ .Post.Content }}</p>
+            <p><strong>Oluşturan Hesap:</strong> {{ .Post.Username }}</p>
+            {{ if .Post.Image }}
+            <img src="{{ .Post.Image }}" alt="Post Image">
+            {{ end }}
+            <p><strong>Beğeniler:</strong> {{ .Post.Likes }}</p>
+            <p><strong>Beğenmeme:</strong> {{ .Post.Dislikes }}</p>
+            <p><strong>Oluşturulma Tarihi:</strong> {{ .Post.CreatedAt }}</p>
+
+            <div class="comments-container">
+                <h2>Yorumlar</h2>
+                {{ if .Post.Comments }}
+                    {{ range .Post.Comments }}
+                    <div class="comment">
+                        <p><em>Kullanıcı: {{ .Username }}</em></p>
+                        <p>Yorum: {{ .Content }}</p>
+                        <p>Oluşturma Tarihi: {{ .CreatedAt }}</p>
+                    </div>
+                    {{ end }}
+                {{ else }}
+                    <p>Henüz yorum yapılmadı.</p>
+                {{ end }}
+            </div>
+        </div>
+    </main>
+</body>
+</html>

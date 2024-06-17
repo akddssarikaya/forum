@@ -9,7 +9,7 @@
 <body>
     <header>
         <div class="pages">
-            <img class="logo_image" href="/" src="../docs/WG.png" alt="logo">
+            <img class="logo_image" src="../docs/WG.png" alt="logo">
             <a class="page_label" href="/">Ana Sayfa</a>
             <a class="page_label" href="/create_post">Gönderi Oluştur</a>
             <a class="page_label" href="/profile">Profil</a>
@@ -26,13 +26,12 @@
     <main>
         <div class="posts">
             {{ range .Posts }}
-            <div class="post">
-                <br>
+            <div class="post" data-post-id="{{.ID}}">
                 <h1>{{.Title}}</h1>
                 <p><strong>Gönderi:</strong> {{.Content}}</p>
                 <p><strong>Oluşturan Hesap:</strong> {{.Username}}</p>
                 {{ if .Image }}
-                <img src="{{.Image}}" alt="Post Image">
+                    <img src="{{.Image}}" alt="Post Image">
                 {{ end }}
                 <p><strong>Beğeniler:</strong> {{.Likes}}</p>
                 <p><strong>Beğenmeme:</strong> {{.Dislikes}}</p>
@@ -40,34 +39,36 @@
 
                 <div class="comments-container">
                     <p>YORUMLAR:{{len .Comments}}</p>
-                    <button class="toggle-comments">Göster/Gizle</button> 
-                        <div class="comments">
+                    <button class="toggle-comments">Göster/Gizle</button>
+                    <div class="comments" style="display: none;"> 
                         {{ range .Comments }}
-                        <div class="comment">
-                            <p><em>Kullanıcı : {{ .Username }}</em></p>
-                            <p>Yorum : {{ .Content }}</p>
-                            <p>Oluşturma Tarihi : {{ .CreatedAt }}</p>
-                        </div>
+                            <div class="comment">
+                                <p><em>Kullanıcı : {{ .Username }}</em></p>
+                                <p>Yorum : {{ .Content }}</p>
+                                <p>Oluşturma Tarihi : {{ .CreatedAt }}</p>
+                            </div>
                         {{ end }}
                     </div>
                 </div>
-<br>
+                <br>
                 {{ if $.LoggedIn }}
-                <form method="post" action="/like" style="display:inline;">
-                    <input type="hidden" name="postId" value="{{.ID}}">
-                    <button type="submit">Beğen</button>
-                </form>
-                <form method="post" action="/dislike" style="display:inline;">
-                    <input type="hidden" name="postId" value="{{.ID}}">
-                    <button type="submit">Beğenme</button>
-                </form>
+                <div class="like-dislike-buttons">
+                    <form method="post" action="/like" style="display:inline;">
+                        <input type="hidden" name="postId" value="{{.ID}}">
+                        <button type="submit">Beğen</button>
+                    </form>
+                    <form method="post" action="/dislike" style="display:inline;">
+                        <input type="hidden" name="postId" value="{{.ID}}">
+                        <button type="submit">Beğenme</button>
+                    </form>
+                </div>
                 <form class="comment_form" method="post" data-post-id="{{.ID}}">
                     <input type="hidden" name="postId" value="{{.ID}}">
                     <textarea name="comment" placeholder="Yorumunuzu buraya girin..." required></textarea>
-                    <button type="submit">Yorum Yap</button>
+                    <button type="submit" class="submit-comment">Yorum Yap</button>
                 </form>
                 {{else}}
-                <div class="alert">Begeni yada yorum icin <a href="/login">giris yapin</a></div>
+                <div class="alert">Beğeni ya da yorum için <a href="/login">giriş yapın</a></div>
                 {{ end }}
                 <br>
             </div>
@@ -82,17 +83,31 @@
         </div>
     </main>
     <script>
-     document.addEventListener("DOMContentLoaded", function () {
-            document.body.addEventListener("click", function (event) {
-                if (event.target.classList.contains("toggle-comments")) {
-                    const commentsContainer = event.target.nextElementSibling;
-                    commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+        document.addEventListener("DOMContentLoaded", function () {
+            // Toggle comments visibility
+            function toggleComments(event) {
+                const commentsContainer = event.target.parentElement.querySelector(".comments");
+                commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+            }
+
+            // Handle clicking on post to view post detail or toggle comments
+            document.querySelector(".posts").addEventListener("click", function (event) {
+                const target = event.target;
+                if (target.classList.contains("toggle-comments")) {
+                    toggleComments(event);
+                } else if (target.closest(".post")) {
+                    const postId = target.closest(".post").getAttribute("data-post-id");
+                    // Prevent navigation if clicking within the post area but not on specific buttons
+                    if (!target.matches(".submit-comment, .comment_form, textarea")) {
+                        window.location.href = `/view_post?id=${postId}`;
+                    }
                 }
             });
 
+            // Handle comment submission
             document.querySelectorAll(".comment_form").forEach(form => {
                 form.addEventListener("submit", function (e) {
-                    
+                    e.preventDefault();
                     const postId = this.dataset.postId;
                     const formData = new FormData(this);
 
@@ -103,10 +118,13 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.message === "Comment posted successfully") {
-                            const commentsContainer = this.previousElementSibling.querySelector(".comments");
+                            const commentsContainer = this.parentElement.querySelector(".comments");
                             const newComment = document.createElement("div");
                             newComment.classList.add("comment");
-                            newComment.innerHTML = `<p><em>YourUsername</em></p><p>${formData.get("comment")}</p><p>Just now</p>`;
+                            newComment.innerHTML = `
+                                <p><em>YourUsername</em></p>
+                                <p>${formData.get("comment")}</p>
+                                <p>Just now</p>`;
                             commentsContainer.appendChild(newComment);
                             this.reset();
                         } else {
@@ -115,8 +133,14 @@
                     })
                     .catch(error => console.error("Error:", error));
                 });
+
+                // Prevent propagation from textarea click
+                form.querySelector("textarea").addEventListener("click", function (e) {
+                    e.stopPropagation(); // Stop event from propagating to .posts
+                });
+                
             });
         });
-    </script> 
+    </script>
 </body>
 </html>
