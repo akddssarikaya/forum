@@ -140,6 +140,21 @@
                 });
                 
             });
+            document.querySelectorAll('.category').forEach(category => {
+    category.addEventListener('click', function(event) {
+        event.preventDefault(); // Bağlantıya tıklamayı önler
+
+        const categoryName = this.textContent.slice(1); // Kategori adını al, # işaretini kaldır
+        const posts = document.querySelectorAll('.post');
+
+        posts.forEach(post => {
+            const title = post.querySelector('h1').textContent;
+            const displayStyle = title.includes(categoryName) ? 'block' : 'none';
+            post.style.display = displayStyle;
+        });
+    });
+});
+
         });
     </script>
 </body>
