@@ -31,8 +31,6 @@
             <p><strong>Kullanıcı Adı:</strong> <span id="username">{{.Username}}</span></p>
             <p><strong>Email:</strong> <span id="email">{{.Email}}</span></p>
             <p><strong>Gönderi Sayısı:</strong> <span id="gonderisayisi">{{len .Posts}}</span></p>
-            <p><strong>Beğeniler:</strong> <span id="likes">{{.Total_likes}}</span></p>
-            <p><strong>Beğenmeme:</strong> <span id="dislikes">{{.Total_dislikes}}</span></p>
         </div>
         {{ if not .IsAdmin }}
         <a class="admin_link" href="panel">Admin Paneli Giriş</a>
@@ -69,14 +67,59 @@
 
     <div id="likes" class="tabcontent">
         <h1>Kullanıcının Beğendikleri:</h1>
-        <!-- Beğenilen gönderiler burada gösterilecek -->
+        <div class="prof_posts">
+            {{ range .LikedPosts }}
+            <div class="post">
+                <br>
+                <h1>{{.CategoryName}}</h1>
+                <h2>{{.Title}}</h2>
+                <p><strong>Gönderi:</strong> {{.Content}}</p>
+                
+                {{ if .Image }}
+                <img src="{{.Image}}" alt="Post Image">
+                {{ end }}
+                <p><strong>Beğeniler:</strong> {{.Likes}}</p>
+                <p><strong>Beğenmeme:</strong> {{.Dislikes}}</p>
+                <p><strong>Oluşturulma Tarihi:</strong> {{.CreatedAt}}</p>
+                <br>
+            </div>
+            {{ end }}
+        </div>
+        <h1>Kullanıcının Beğenmedikleri:</h1>
+        <div class="prof_posts">
+            {{ range .DislikedPosts }}
+            <div class="post">
+                <br>
+                <h1>{{.CategoryName}}</h1>
+                <h2>{{.Title}}</h2>
+                <p><strong>Gönderi:</strong> {{.Content}}</p>
+                
+                {{ if .Image }}
+                <img src="{{.Image}}" alt="Post Image">
+                {{ end }}
+                <p><strong>Beğeniler:</strong> {{.Likes}}</p>
+                <p><strong>Beğenmeme:</strong> {{.Dislikes}}</p>
+                <p><strong>Oluşturulma Tarihi:</strong> {{.CreatedAt}}</p>
+                <br>
+            </div>
+            {{ end }}
+        </div>
     </div>
 
     <div id="comments" class="tabcontent">
         <h1>Kullanıcının Yorumları:</h1>
-        <!-- Kullanıcının yorum yaptığı gönderiler burada gösterilecek -->
+        <div class="prof_comments">
+            {{ range .Comments }}
+            <div class="comment">
+                <br>
+                <h2>Gönderi ID: {{.PostID}}</h2>
+                <p><strong>Yorum:</strong> {{.Content}}</p>
+                <p><strong>Oluşturulma Tarihi:</strong> {{.CreatedAt}}</p>
+                <br>
+            </div>
+            {{ end }}
+        </div>
     </div>
-
     <script>
         function openTab(evt, tabName) {
             var i, tabcontent, tablinks;
