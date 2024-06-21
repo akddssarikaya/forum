@@ -26,7 +26,9 @@ body {
 }
 
 .logo {
-    height: 50px;
+    height: 120px;
+    width: 250px;
+    padding-left: 100px;
 }
 
 .nav {
@@ -123,7 +125,7 @@ body {
 button {
     width: 100%;
     padding: 10px;
-    background-color: #40adb4;
+    background-color: black;
     color: #ffffff;
     border: none;
     border-radius: 5px;
