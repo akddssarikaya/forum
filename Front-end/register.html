@@ -1,66 +1,69 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8" /> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles/globals.css" />
     <link rel="stylesheet" href="styles/style.css" />
-  </head>
-  <body>
+</head>
+<body>
+    <header class="header">
+        <img src="img/logo.png" alt="Logo" class="logo">
+        <nav class="nav">
+            <a href="home" class="nav-item">HOME</a>
+            <a href="register" class="current-item">REGISTER</a>
+            <a href="login" class="nav-item">LOGIN</a>
+        </nav>
+    </header>
     <div class="desktop-screen">
-      <div class="div">
-        <div class="overlap-group-3">
-          <a href="home" class="text-wrapper-2">HOME</a>
+        <div class="form-container">
+            <form action="/registerSubmit" method="post" class="register-form"> 
+                <h2>Register</h2>
+                <div class="input-group">
+                    <label for="email">E-mail</label>
+                    <div class="input-with-icon">
+                        <img class="input-icon" src="img/message.svg" alt="Email Icon" />
+                        <input type="email" placeholder="E-mail" id="email" name="email" required />
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <div class="input-with-icon">
+                      <img class="input-icon" src="img/mdi-account.svg" alt="Username Icon" />
+                    <input type="text" placeholder="Username" id="username" name="username" />
+                  </div>
+                </div>
+                <div class="input-group">
+                    <label for="pass1">Password</label>
+                    <div class="input-with-icon">
+                      <img class="input-icon" src="img/image-1.png" alt="Pass1 Icon" />
+                    
+                    <input type="password" placeholder="Password" id="pass1" name="password" />
+                </div>
+              </div>
+                <div class="input-group">
+                    <label for="pass2">Confirm Password</label>
+                    <div class="input-with-icon">
+                      <img class="input-icon" src="img/image-3.png" alt="Pass2 Icon" />
+                     
+                    <input type="password" placeholder="Confirm Password" id="pass2" />
+                </div>
+              </div>
+                <button type="submit">Submit</button>
+            </form>
+            <div class="social-login">
+                <p>or Register with</p>
+                <div class="social-icons">
+                    <img src="img/facebook.png" alt="Facebook" />
+                    <img src="img/twitter.png" alt="Twitter" />
+                    <img src="img/instagram.png" alt="Instagram" />
+                    <img src="img/linkedin.png" alt="LinkedIn" />
+                </div>
+            </div>
+            <div class="login-redirect">
+                <p>Already have an account? <a href="login">Login</a></p>
+            </div>
         </div>
-        <div class="overlap">
-          <a href="register" class="text-wrapper">REGISTER</a>
-        </div>
-       <div class="overlap-group">
-          <a href="login" class="text-wrapper-2">LOGIN</a>
-        </div>
-      </div>
-        <div class="overlap-group-2">
-          <div class="rectangle"></div>
-          <div class="rectangle-2"></div>
-          <div class="rectangle-3"></div>
-          <div class="rectangle-4"></div>
-          <div class="text-wrapper-3">E-mail</div>
-          <div class="text-wrapper-4">Confirm Password</div>
-          <div class="text-wrapper-5">Password</div>
-          <img class="image" src="img/image-3.png" />
-          <img class="img" src="img/image-3.png" />
-          
-          <img class="message" src="img/message.svg" />
-         
-          <div class="rectangle-5"></div>
-          <div class="text-wrapper-6">Username</div>
-          <img class="mdi-account" src="img/mdi-account.svg" />
-          <div class="rectangle-6"></div>
-          
-          <form action="/registerSubmit" method="post"> 
-          <div ><input type="email" class="element-input-field" placeholder="E-mail" id="email" name="email" required/></div>
-          <div ><input type="text" id="username" class="label-wrapper" placeholder="Username"  name="username"/></div>
-          <div ><input type="password" id="pass1" class="div-wrapper" placeholder="Password" name="password"/></div>
-          <div> <input type="password"  class="element-input-field-2" id="pass2" placeholder="Confirm Password" /></div>
-          <button class="text-wrapper-7" style="font-size: 20px;"   type="submit">Submit</button>
-        
-         </form>
-         </div>
-        <div class="text-wrapper-8">or Register with</div>
-        <div class="overlap-2">
-          <a class="text-wrapper-9" href="login">Login</a>
-          <div class="already-have-an">Already have&nbsp;&nbsp;an account?</div>
-        </div>
-        
-          
-        <div class="overlap-3">
-          <img class="facebook" src="img/facebook.png" />
-          <img class="twitter" src="img/twitter.png" />
-          <img class="instagram" src="img/instagram.png" />
-          <img class="linked-in" src="img/linkedin.png" />
-        </div>
-        <img class="facebook-2" src="img/logo.png" />
-      </div>
     </div>
-  </body>
+</body>
 </html>
