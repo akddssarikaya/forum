@@ -43,10 +43,24 @@
                     <button class="toggle-comments">Göster/Gizle</button>
                     <div class="comments" style="display: none;"> 
                         {{ range .Comments }}
-                            <div class="comment">
+                            <div class="comment" data-comment-id="{{.ID}}">
                                 <p><em>Kullanıcı : {{ .Username }}</em></p>
                                 <p>Yorum : {{ .Content }}</p>
                                 <p>Oluşturma Tarihi : {{ .CreatedAt }}</p>
+                                <p><strong>Beğeniler:</strong> {{.Likes}}</p>
+                                <p><strong>Beğenmeme:</strong> {{.Dislikes}}</p>
+                                {{ if $.LoggedIn }}
+                                <div class="comment-like-dislike-buttons">
+                                    <form method="post" action="/like_comment" style="display:inline;">
+                                        <input type="hidden" name="commentId" value="{{.ID}}">
+                                        <button type="submit">Beğen</button>
+                                    </form>
+                                    <form method="post" action="/dislike_comment" style="display:inline;">
+                                        <input type="hidden" name="commentId" value="{{.ID}}">
+                                        <button type="submit">Beğenme</button>
+                                    </form>
+                                </div>
+                                {{end}}
                             </div>
                         {{ end }}
                     </div>
@@ -74,7 +88,6 @@
                 <br>
             </div>
             {{ end }}  
-            
         </div>
         <div class="categories">
             <h1>Kategoriler</h1>
@@ -142,19 +155,19 @@
                 
             });
             document.querySelectorAll('.category').forEach(category => {
-    category.addEventListener('click', function(event) {
-        event.preventDefault(); // Bağlantıya tıklamayı önler
+                category.addEventListener('click', function(event) {
+                    event.preventDefault(); // Bağlantıya tıklamayı önler
 
-        const categoryName = this.textContent.slice(1); // Kategori adını al, # işaretini kaldır
-        const posts = document.querySelectorAll('.post');
+                    const categoryName = this.textContent.slice(1); // Kategori adını al, # işaretini kaldır
+                    const posts = document.querySelectorAll('.post');
 
-        posts.forEach(post => {
-            const title = post.querySelector('h1').textContent;
-            const displayStyle = title.includes(categoryName) ? 'block' : 'none';
-            post.style.display = displayStyle;
-        });
-    });
-});
+                    posts.forEach(post => {
+                        const title = post.querySelector('h1').textContent;
+                        const displayStyle = title.includes(categoryName) ? 'block' : 'none';
+                        post.style.display = displayStyle;
+                    });
+                });
+            });
 
         });
     </script>

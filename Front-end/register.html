@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles/globals.css" />
     <link rel="stylesheet" href="styles/style.css" />
+    <script>
+        // Function to validate password match
+        function validatePassword() {
+            var pass1 = document.getElementById("pass1").value;
+            var pass2 = document.getElementById("pass2").value;
+
+            if (pass1 != pass2) {
+                alert("Passwords do not match!");
+                return false;
+            }
+            return true;
+        }
+    </script>
 </head>
 <body>
     <header class="header">
@@ -17,7 +30,7 @@
     </header>
     <div class="desktop-screen">
         <div class="form-container">
-            <form action="/registerSubmit" method="post" class="register-form"> 
+            <form action="/registerSubmit" method="post" class="register-form" onsubmit="return validatePassword()"> 
                 <h2>Register</h2>
                 <div class="input-group">
                     <label for="email">E-mail</label>
@@ -29,26 +42,24 @@
                 <div class="input-group">
                     <label for="username">Username</label>
                     <div class="input-with-icon">
-                      <img class="input-icon" src="img/mdi-account.svg" alt="Username Icon" />
-                    <input type="text" placeholder="Username" id="username" name="username" />
-                  </div>
+                        <img class="input-icon" src="img/mdi-account.svg" alt="Username Icon" />
+                        <input type="text" placeholder="Username" id="username" name="username" />
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="pass1">Password</label>
                     <div class="input-with-icon">
-                      <img class="input-icon" src="img/image-1.png" alt="Pass1 Icon" />
-                    
-                    <input type="password" placeholder="Password" id="pass1" name="password" />
+                        <img class="input-icon" src="img/image-1.png" alt="Pass1 Icon" />
+                        <input type="password" placeholder="Password" id="pass1" name="password" required />
+                    </div>
                 </div>
-              </div>
                 <div class="input-group">
                     <label for="pass2">Confirm Password</label>
                     <div class="input-with-icon">
-                      <img class="input-icon" src="img/image-3.png" alt="Pass2 Icon" />
-                     
-                    <input type="password" placeholder="Confirm Password" id="pass2" />
+                        <img class="input-icon" src="img/image-3.png" alt="Pass2 Icon" />
+                        <input type="password" placeholder="Confirm Password" id="pass2" required />
+                    </div>
                 </div>
-              </div>
                 <button type="submit">Submit</button>
             </form>
             <div class="social-login">

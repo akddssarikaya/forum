@@ -84,6 +84,21 @@ func HandleViewPost(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "User not found for comment", http.StatusInternalServerError)
 			return
 		}
+
+		// Yorumun beğeni ve beğenmeme sayılarını çekme
+		err = db.QueryRow(`
+			SELECT 
+				IFNULL(SUM(CASE WHEN comment_likes.like_type = 'like' THEN 1 ELSE 0 END), 0) AS likes,
+				IFNULL(SUM(CASE WHEN comment_likes.like_type = 'dislike' THEN 1 ELSE 0 END), 0) AS dislikes
+			FROM comments
+			LEFT JOIN comment_likes ON comments.id = comment_likes.comment_id
+			WHERE comments.id = ?
+			GROUP BY comments.id`, comment.ID).Scan(&comment.Likes, &comment.Dislikes)
+		if err != nil {
+			http.Error(w, "Could not retrieve comment likes and dislikes", http.StatusInternalServerError)
+			return
+		}
+
 		comments = append(comments, comment)
 	}
 

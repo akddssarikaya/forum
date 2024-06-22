@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"net/http"
+	"strconv"
 
 	"forum/handlers"
 )
@@ -45,7 +46,13 @@ func HandleHome(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Gönderileri çekmek için sorgu
-	rows1, err := db.Query("SELECT id, user_id, title, content, image, category_id, created_at, total_likes, total_dislikes FROM posts")
+	rows1, err := db.Query(`
+		SELECT 
+			posts.id, posts.user_id, posts.title, posts.content, posts.image, posts.category_id, posts.created_at, posts.total_likes, posts.total_dislikes,
+			categories.name, users.username
+		FROM posts
+		JOIN categories ON posts.category_id = categories.id
+		JOIN users ON posts.user_id = users.id`)
 	if err != nil {
 		http.Error(w, "Could not retrieve posts", http.StatusInternalServerError)
 		return
@@ -55,20 +62,9 @@ func HandleHome(w http.ResponseWriter, r *http.Request) {
 	var posts []handlers.Post
 	for rows1.Next() {
 		var post handlers.Post
-
-		err := rows1.Scan(&post.ID, &post.UserID, &post.Title, &post.Content, &post.Image, &post.Category, &post.CreatedAt, &post.Likes, &post.Dislikes)
+		err := rows1.Scan(&post.ID, &post.UserID, &post.Title, &post.Content, &post.Image, &post.Category, &post.CreatedAt, &post.Likes, &post.Dislikes, &post.CategoryName, &post.Username)
 		if err != nil {
 			http.Error(w, "Could not scan post", http.StatusInternalServerError)
-			return
-		}
-		err = db.QueryRow("SELECT name FROM categories WHERE id = ?", post.Category).Scan(&post.CategoryName)
-		if err != nil {
-			http.Error(w, "Title not found", http.StatusInternalServerError)
-			return
-		}
-		err = db.QueryRow("SELECT username FROM users WHERE id = ?", post.UserID).Scan(&post.Username)
-		if err != nil {
-			http.Error(w, "User not found", http.StatusInternalServerError)
 			return
 		}
 
@@ -78,7 +74,16 @@ func HandleHome(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Yorumları çekmek için sorgu
-		rows2, err := db.Query("SELECT id, post_id, user_id, content, created_at FROM comments WHERE post_id = ?", post.ID)
+		rows2, err := db.Query(`
+			SELECT 
+				comments.id, comments.post_id, comments.user_id, comments.content, comments.created_at, users.username,
+				IFNULL(SUM(CASE WHEN comment_likes.like_type = 'like' THEN 1 ELSE 0 END), 0) AS likes,
+				IFNULL(SUM(CASE WHEN comment_likes.like_type = 'dislike' THEN 1 ELSE 0 END), 0) AS dislikes
+			FROM comments 
+			LEFT JOIN comment_likes ON comments.id = comment_likes.comment_id
+			JOIN users ON comments.user_id = users.id
+			WHERE comments.post_id = ?
+			GROUP BY comments.id`, post.ID)
 		if err != nil {
 			http.Error(w, "Could not retrieve comments", http.StatusInternalServerError)
 			return
@@ -88,20 +93,14 @@ func HandleHome(w http.ResponseWriter, r *http.Request) {
 		var comments []handlers.Comment
 		for rows2.Next() {
 			var comment handlers.Comment
-			err := rows2.Scan(&comment.ID, &comment.PostID, &comment.UserID, &comment.Content, &comment.CreatedAt)
+			err := rows2.Scan(&comment.ID, &comment.PostID, &comment.UserID, &comment.Content, &comment.CreatedAt, &comment.Username, &comment.Likes, &comment.Dislikes)
 			if err != nil {
 				http.Error(w, "Could not scan comment", http.StatusInternalServerError)
 				return
 			}
-			err = db.QueryRow("SELECT username FROM users WHERE id = ?", comment.UserID).Scan(&comment.Username)
-			if err != nil {
-				http.Error(w, "User not found for comment", http.StatusInternalServerError)
-				return
-			}
 			comments = append(comments, comment)
 		}
-
-		post.Comments = comments // Post yapısına yorumları ekleyin
+		post.Comments = comments
 
 		posts = append(posts, post)
 	}
@@ -126,4 +125,65 @@ func HandleHome(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Could not execute template", http.StatusInternalServerError)
 		return
 	}
+}
+
+func HandleLikeComment(w http.ResponseWriter, r *http.Request) {
+	HandleCommentLikeDislike(w, r, "like")
+}
+
+func HandleDislikeComment(w http.ResponseWriter, r *http.Request) {
+	HandleCommentLikeDislike(w, r, "dislike")
+}
+
+func HandleCommentLikeDislike(w http.ResponseWriter, r *http.Request, likeType string) {
+	r.ParseForm()
+	commentID, err := strconv.Atoi(r.FormValue("commentId"))
+	if err != nil {
+		http.Error(w, "Invalid comment ID", http.StatusBadRequest)
+		return
+	}
+
+	userID, err := r.Cookie("user_id")
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	db, err := sql.Open("sqlite3", "./database/forum.db")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	var existingLikeType string
+	err = db.QueryRow("SELECT like_type FROM comment_likes WHERE user_id = ? AND comment_id = ?", userID.Value, commentID).Scan(&existingLikeType)
+
+	if err == sql.ErrNoRows {
+		// Kullanıcı daha önce bu yorumu beğenmemiş veya beğenmemiş
+		_, err = db.Exec("INSERT INTO comment_likes (user_id, comment_id, like_type) VALUES (?, ?, ?)", userID.Value, commentID, likeType)
+		if err != nil {
+			http.Error(w, "Could not insert like/dislike", http.StatusInternalServerError)
+			return
+		}
+	} else if err != nil {
+		http.Error(w, "Could not query like/dislike", http.StatusInternalServerError)
+		return
+	} else if existingLikeType == likeType {
+		// Kullanıcı zaten bu yorumu beğenmiş veya beğenmeme yapmış, geri al
+		_, err = db.Exec("DELETE FROM comment_likes WHERE user_id = ? AND comment_id = ?", userID.Value, commentID)
+		if err != nil {
+			http.Error(w, "Could not remove like/dislike", http.StatusInternalServerError)
+			return
+		}
+	} else {
+		// Kullanıcı farklı bir işlem yapmış, güncelle
+		_, err = db.Exec("UPDATE comment_likes SET like_type = ? WHERE user_id = ? AND comment_id = ?", likeType, userID.Value, commentID)
+		if err != nil {
+			http.Error(w, "Could not update like/dislike", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	http.Redirect(w, r, r.Header.Get("Referer"), http.StatusFound)
 }

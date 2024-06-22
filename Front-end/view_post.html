@@ -35,7 +35,7 @@
             <p><strong>Beğeniler:</strong> {{ .Post.Likes }}</p>
             <p><strong>Beğenmeme:</strong> {{ .Post.Dislikes }}</p>
             <p><strong>Oluşturulma Tarihi:</strong> {{ .Post.CreatedAt }}</p>
-
+    
             <div class="comments-container">
                 <h2>Yorumlar</h2>
                 {{ if .Post.Comments }}
@@ -44,6 +44,8 @@
                         <p><em>Kullanıcı: {{ .Username }}</em></p>
                         <p>Yorum: {{ .Content }}</p>
                         <p>Oluşturma Tarihi: {{ .CreatedAt }}</p>
+                        <p>Beğeni: {{.Likes}}</p>
+                        <p>Beğenmeme: {{.Dislikes}}</p>
                     </div>
                     {{ end }}
                 {{ else }}
@@ -52,5 +54,6 @@
             </div>
         </div>
     </main>
+    
 </body>
 </html>

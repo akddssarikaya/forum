@@ -44,6 +44,8 @@ type Comment struct {
 	Content   string
 	CreatedAt string
 	Username  string
+	Likes     int
+	Dislikes  int
 }
 type Likes struct {
 	ID       int

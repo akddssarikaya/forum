@@ -21,6 +21,23 @@ func CreateCategoryTable(database *sql.DB) {
 	}
 }
 
+func CreateCommentLikesTable(database *sql.DB) {
+	createCommentLikesTable := `
+	CREATE TABLE IF NOT EXISTS comment_likes (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id INTEGER NOT NULL,
+		comment_id INTEGER NOT NULL,
+		like_type TEXT NOT NULL,
+		UNIQUE(user_id, comment_id),
+		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+		FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE
+	);`
+	_, err := database.Exec(createCommentLikesTable)
+	if err != nil {
+		log.Fatalf("CommentLikes table creation failed: %s", err)
+	}
+}
+
 func CreateUserTable(database *sql.DB) {
 	createUsersTable := `
 	CREATE TABLE IF NOT EXISTS users (

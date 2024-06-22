@@ -30,6 +30,7 @@ func main() {
 	handlers.CreateLikesTable(database)
 	handlers.CreateCommentsTable(database)
 	handlers.CreateProfileTable(database)
+	handlers.CreateCommentLikesTable(database)
 
 	models.LoadTemplates()
 	log.Println("Tables created successfully!")
@@ -57,6 +58,15 @@ func main() {
 	http.HandleFunc("/create_post", models.HandleCreatePost)
 	http.HandleFunc("/category", models.HandleCategory)
 	http.HandleFunc("/like", models.LikePost)
+	// Yeni eklenen işlevler için handler fonksiyonlarını ekleyin
+	http.HandleFunc("/like_comment", func(w http.ResponseWriter, r *http.Request) {
+		models.HandleLikeComment(w, r)
+	})
+
+	http.HandleFunc("/dislike_comment", func(w http.ResponseWriter, r *http.Request) {
+		models.HandleDislikeComment(w, r)
+	})
+
 	http.HandleFunc("/dislike", models.DislikePost)
 	http.HandleFunc("/comment", models.CommentPost)
 	http.HandleFunc("/view_post", models.HandleViewPost) // Corrected route
