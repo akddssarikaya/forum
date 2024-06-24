@@ -92,7 +92,7 @@ func InitializeDatabase() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			_, err = statement.Exec("Seyehat Önerileri", "En İyi Seyehat Önerileri.", "/seyehatoneri")
+			_, err = statement.Exec("Seyahat Önerileri", "En İyi Seyahat Önerileri.", "/seyahatoneri")
 			if err != nil {
 				log.Fatal(err)
 			}

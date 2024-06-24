@@ -70,6 +70,7 @@ func main() {
 	http.HandleFunc("/dislike", models.DislikePost)
 	http.HandleFunc("/comment", models.CommentPost)
 	http.HandleFunc("/view_post", models.HandleViewPost) // Corrected route
-	log.Println("Server is running on http://localhost:8082")
-	log.Fatal(http.ListenAndServe(":8082", nil))
+	http.HandleFunc("/delete_post", models.HandleDeletePost)
+	log.Println("Server is running on http://localhost:8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }

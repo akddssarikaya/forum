@@ -60,6 +60,9 @@
                 <p><strong>Beğenmeme:</strong> {{.Dislikes}}</p>
                 <p><strong>Oluşturulma Tarihi:</strong> {{.CreatedAt}}</p>
                 <br>
+                <form action="/delete_post?id={{ .ID }}" method="post" onsubmit="return deletePost(this)">
+                    <button type="submit">Gönderiyi Sil</button>
+                </form>
             </div>
             {{ end }}
         </div>
@@ -81,7 +84,7 @@
                 <p><strong>Beğeniler:</strong> {{.Likes}}</p>
                 <p><strong>Beğenmeme:</strong> {{.Dislikes}}</p>
                 <p><strong>Oluşturulma Tarihi:</strong> {{.CreatedAt}}</p>
-                <br>
+                
             </div>
             {{ end }}
         </div>
@@ -135,6 +138,24 @@
             evt.currentTarget.className += " active";
         }
         document.getElementsByClassName('tablinks')[0].click();  // İlk sekmenin açık olarak başlaması
+
+        function deletePost(form) {
+        if (confirm("Bu gönderiyi silmek istediğinizden emin misiniz?")) {
+            fetch(form.action, {
+                method: 'POST',
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert("Gönderi silinemedi.");
+                }
+            }).catch(error => {
+                console.error('Error deleting post:', error);
+                alert("Bir hata oluştu. Gönderi silinemedi.");
+            });
+        }
+        return false; // Formun default davranışını engelle (sayfayı yenileme)
+    }
     </script>
 </body>
 </html>
