@@ -71,6 +71,7 @@ func main() {
 	http.HandleFunc("/comment", models.CommentPost)
 	http.HandleFunc("/view_post", models.HandleViewPost) // Corrected route
 	http.HandleFunc("/delete_post", models.HandleDeletePost)
+	http.HandleFunc("/delete_comment", models.HandleDeleteComment)
 	log.Println("Server is running on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

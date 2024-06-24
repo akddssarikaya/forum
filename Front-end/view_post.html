@@ -46,6 +46,12 @@
                         <p>Oluşturma Tarihi: {{ .CreatedAt }}</p>
                         <p>Beğeni: {{.Likes}}</p>
                         <p>Beğenmeme: {{.Dislikes}}</p>
+                        {{ if or (eq $.UserID .UserID) (eq $.UserID $.Post.UserID) }}
+                        <form action="/delete_comment" method="post">
+                            <input type="hidden" name="comment_id" value="{{ .ID }}">
+                            <button type="submit">Yorumu Sil</button>
+                        </form>
+                        {{ end }}
                     </div>
                     {{ end }}
                 {{ else }}
@@ -54,6 +60,5 @@
             </div>
         </div>
     </main>
-    
 </body>
 </html>
