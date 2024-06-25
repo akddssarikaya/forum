@@ -76,10 +76,9 @@ func HandleSubmitPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get form values
-
 	content := r.FormValue("content")
-	title:=r.FormValue("title")
-	categoryID := r.FormValue("category")
+	title := r.FormValue("title")
+	categoryIDs := r.Form["category[]"]
 
 	// Get user_id from cookie
 	cookie, err := r.Cookie("user_id")
@@ -134,10 +133,12 @@ func HandleSubmitPost(w http.ResponseWriter, r *http.Request) {
 	defer stmt.Close()
 
 	createdAt := time.Now()
-	_, err = stmt.Exec(userID, title, content, imagePath, categoryID, createdAt)
-	if err != nil {
-		http.Error(w, "Error executing query", http.StatusInternalServerError)
-		return
+	for _, categoryID := range categoryIDs {
+		_, err = stmt.Exec(userID, title, content, imagePath, categoryID, createdAt)
+		if err != nil {
+			http.Error(w, "Error executing query", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	// Redirect to a confirmation page or back to the home page

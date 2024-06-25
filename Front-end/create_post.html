@@ -40,7 +40,7 @@
                 <tr>
                     <td><label for="category">Kategori</label></td>
                     <td>
-                        <select id="category" name="category" required>
+                        <select id="category" name="category[]" multiple required>
                             {{range .Categories}}
                             <option value="{{.ID}}">{{.Name}}</option>
                             {{end}}
