@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"sync"
 
-	"forum/handlers"
+	"forum/Back-end/handlers"
 )
 
 var once sync.Once
@@ -17,7 +17,7 @@ func HandleCategory(w http.ResponseWriter, r *http.Request) {
 	userIDCookie, err := r.Cookie("user_id")
 	loggedIn := err == nil
 
-	db, err := sql.Open("sqlite3", "./database/forum.db")
+	db, err := sql.Open("sqlite3", "./Back-end/database/forum.db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -61,7 +61,7 @@ func HandleCategory(w http.ResponseWriter, r *http.Request) {
 
 func InitializeDatabase() {
 	once.Do(func() {
-		db, err := sql.Open("sqlite3", "./database/forum.db")
+		db, err := sql.Open("sqlite3", "./Back-end/database/forum.db")
 		if err != nil {
 			log.Fatal(err)
 		}

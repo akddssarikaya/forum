@@ -5,12 +5,13 @@
     <title>Ana Sayfa</title>
     <link rel="stylesheet" href="../styles/home.css">
     <link href="https://fonts.cdnfonts.com/css/montreal?styles=28831" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <header>
         <div class="pages">
             <img class="logo_image" src="../docs/WG.png" alt="logo">
-            <a class="page_label" href="/">Ana Sayfa</a>
+            <a class="page_label" href="/">Walk Global</a>
             <a class="page_label" href="/create_post">Gönderi Oluştur</a>
             <a class="page_label" href="/profile">Profil</a>
             {{if .ShowLoginRegister}}
@@ -53,11 +54,11 @@
                                 <div class="comment-like-dislike-buttons">
                                     <form method="post" action="/like_comment" style="display:inline;">
                                         <input type="hidden" name="commentId" value="{{.ID}}">
-                                        <button type="submit">Beğen</button>
+                                        <button type="submit" class="like-button"><i class="fas fa-thumbs-up"></i></button>
                                     </form>
                                     <form method="post" action="/dislike_comment" style="display:inline;">
                                         <input type="hidden" name="commentId" value="{{.ID}}">
-                                        <button type="submit">Beğenme</button>
+                                        <button type="submit" class="dislike-button"><i class="fas fa-thumbs-down"></i></button>
                                     </form>
                                 </div>
                                 {{end}}
@@ -70,11 +71,11 @@
                 <div class="like-dislike-buttons">
                     <form method="post" action="/like" style="display:inline;">
                         <input type="hidden" name="postId" value="{{.ID}}">
-                        <button type="submit">Beğen</button>
+                        <button type="submit" class="like-button"><i class="fas fa-thumbs-up"></i></button>
                     </form>
                     <form method="post" action="/dislike" style="display:inline;">
                         <input type="hidden" name="postId" value="{{.ID}}">
-                        <button type="submit">Beğenme</button>
+                        <button type="submit" class="dislike-button"><i class="fas fa-thumbs-down"></i></button>
                     </form>
                 </div>
                 <form class="comment_form" method="post" data-post-id="{{.ID}}">

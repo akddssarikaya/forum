@@ -12,7 +12,7 @@ func LoadTemplates() {
 	templates := []string{"login", "register", "home", "profile", "panel", "category", "create_post", "view_post"}
 
 	for _, tmpl := range templates {
-		path := filepath.Join("..", "Front-end", tmpl+".html")
+		path := filepath.Join(".", "Front-end", tmpl+".html")
 		tmplContent, err := template.ParseFiles(path)
 		if err != nil {
 			log.Fatalf("Error parsing template %s: %v", tmpl, err)

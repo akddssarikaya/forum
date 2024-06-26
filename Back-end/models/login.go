@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"forum/handlers"
+	"forum/Back-end/handlers"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -29,7 +29,7 @@ func HandleLoginPost(w http.ResponseWriter, r *http.Request) {
 		password := r.FormValue("password")
 
 		// Open the login database
-		loginDB, err := sql.Open("sqlite3", "./database/forum.db")
+		loginDB, err := sql.Open("sqlite3", "./Back-end/database/forum.db")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

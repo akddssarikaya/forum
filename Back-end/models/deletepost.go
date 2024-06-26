@@ -26,7 +26,7 @@ func HandleDeletePost(w http.ResponseWriter, r *http.Request) {
 	}
 	userID := cookie.Value
 
-	db, err := sql.Open("sqlite3", "./database/forum.db")
+	db, err := sql.Open("sqlite3", "./Back-end/database/forum.db")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

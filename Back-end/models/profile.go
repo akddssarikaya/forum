@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"forum/handlers"
+	"forum/Back-end/handlers"
 )
 
 func HandleProfile(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +21,7 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("sqlite3", "./database/forum.db")
+	db, err := sql.Open("sqlite3", "./Back-end/database/forum.db")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

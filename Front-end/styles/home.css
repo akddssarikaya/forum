@@ -178,6 +178,18 @@ main {
     text-align: center;
 }
 
+.like-button, .dislike-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px; /* Simge boyutu */
+    color: #00796b; /* Simge rengi */
+}
+
+.like-button:hover, .dislike-button:hover {
+    color: #004d40; /* Hover rengi */
+}
+
 .like-dislike-buttons {
     display: flex;
     gap: 10px; /* Butonlar arasındaki boşluğu ayarlar */
@@ -186,3 +198,4 @@ main {
 .like-dislike-buttons form {
     margin: 0;
 }
+

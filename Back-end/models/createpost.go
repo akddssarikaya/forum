@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"forum/handlers"
+	"forum/Back-end/handlers"
 )
 
 func HandleCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -17,7 +17,7 @@ func HandleCreatePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Could not load create_post template", http.StatusInternalServerError)
 		return
 	}
-	db, err := sql.Open("sqlite3", "./database/forum.db")
+	db, err := sql.Open("sqlite3", "./Back-end/database/forum.db")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -118,7 +118,7 @@ func HandleSubmitPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Insert post into the database
-	db, err := sql.Open("sqlite3", "./database/forum.db")
+	db, err := sql.Open("sqlite3", "./Back-end/database/forum.db")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
