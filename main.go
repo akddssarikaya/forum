@@ -5,13 +5,15 @@ import (
 	"log"
 	"net/http"
 
-	"forum/Back-end/handlers" // Import using module path
+	"forum/Back-end/handlers"
 	"forum/Back-end/models"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var database *sql.DB
+var (
+	database *sql.DB
+)
 
 func main() {
 	var err error
@@ -34,13 +36,13 @@ func main() {
 
 	models.LoadTemplates()
 	log.Println("Tables created successfully!")
+
 	staticFs := http.FileServer(http.Dir("./Front-end/styles"))
 	http.Handle("/styles/", http.StripPrefix("/styles/", staticFs))
 	image := http.FileServer(http.Dir("./Front-end/img"))
 	http.Handle("/img/", http.StripPrefix("/img/", image))
 
 	docsFs := http.FileServer(http.Dir("./Front-end/docs"))
-	// Handle form submission
 	http.Handle("/docs/", http.StripPrefix("/docs/", docsFs))
 
 	imageFs := http.FileServer(http.Dir("./Back-end/uploads"))
@@ -58,20 +60,24 @@ func main() {
 	http.HandleFunc("/create_post", models.HandleCreatePost)
 	http.HandleFunc("/category", models.HandleCategory)
 	http.HandleFunc("/like", models.LikePost)
-	// Yeni eklenen işlevler için handler fonksiyonlarını ekleyin
 	http.HandleFunc("/like_comment", func(w http.ResponseWriter, r *http.Request) {
 		models.HandleLikeComment(w, r)
 	})
-
 	http.HandleFunc("/dislike_comment", func(w http.ResponseWriter, r *http.Request) {
 		models.HandleDislikeComment(w, r)
 	})
-
 	http.HandleFunc("/dislike", models.DislikePost)
 	http.HandleFunc("/comment", models.CommentPost)
-	http.HandleFunc("/view_post", models.HandleViewPost) // Corrected route
+	http.HandleFunc("/view_post", models.HandleViewPost)
 	http.HandleFunc("/delete_post", models.HandleDeletePost)
 	http.HandleFunc("/delete_comment", models.HandleDeleteComment)
+
+	// OAuth Handlers
+	http.HandleFunc("/auth/github/login", models.HandleGitHubLogin)
+	http.HandleFunc("/auth/github/callback", models.HandleGitHubCallback)
+	http.HandleFunc("/auth/google/login", models.HandleGoogleLogin)
+	http.HandleFunc("/auth/google/callback", models.HandleGoogleCallback)
+
 	log.Println("Server is running on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

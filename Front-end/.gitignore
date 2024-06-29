@@ -1,0 +1,3 @@
+# OAuth2 secrets in oauth.go
+Back-end/handlers/oauth.go:ClientID
+Back-end/handlers/oauth.go:ClientSecret

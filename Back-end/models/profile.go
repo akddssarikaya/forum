@@ -9,6 +9,7 @@ import (
 )
 
 func HandleProfile(w http.ResponseWriter, r *http.Request) {
+	var user handlers.User
 	cookie, err := r.Cookie("user_id")
 	if err != nil {
 		http.Error(w, "User ID not provided", http.StatusBadRequest)
@@ -28,7 +29,6 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	var user handlers.User
 	err = db.QueryRow("SELECT id, username, email FROM users WHERE id = ?", userID).Scan(&user.ID, &user.Username, &user.Email)
 	if err != nil {
 		http.Error(w, "User not found", http.StatusInternalServerError)
