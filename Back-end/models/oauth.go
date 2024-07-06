@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/github"
 	"golang.org/x/oauth2/google"
 )
@@ -25,6 +26,13 @@ var (
 		RedirectURL:  "http://localhost:8080/auth/google/callback",
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
 		Endpoint:     google.Endpoint,
+	}
+	facebookOauthConfig = &oauth2.Config{
+		ClientID:     "733859272100233",
+		ClientSecret: "8a3721a1e1f35375c18334e953745675",
+		RedirectURL:  "http://localhost:8080/auth/facebook/callback",
+		Scopes:       []string{"email"},
+		Endpoint:     facebook.Endpoint,
 	}
 	oauthStateString = "randomstring"
 )
@@ -67,6 +75,59 @@ func HandleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID, err := storeUserInDB(user.Login, user.Email, "")
+	if err != nil {
+		http.Error(w, "Could not store user in database", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:  "user_id",
+		Value: strconv.FormatInt(userID, 10),
+		Path:  "/",
+	})
+
+	http.Redirect(w, r, "/profile", http.StatusSeeOther)
+}
+
+func HandleFacebookLogin(w http.ResponseWriter, r *http.Request) {
+	url := facebookOauthConfig.AuthCodeURL(oauthStateString)
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+
+func HandleFacebookCallback(w http.ResponseWriter, r *http.Request) {
+	state := r.FormValue("state")
+	if state != oauthStateString {
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	code := r.FormValue("code")
+	token, err := facebookOauthConfig.Exchange(oauth2.NoContext, code)
+	if err != nil {
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	client := facebookOauthConfig.Client(oauth2.NoContext, token)
+	resp, err := client.Get("https://graph.facebook.com/me?fields=id,name,email")
+	if err != nil {
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+	defer resp.Body.Close()
+
+	var user struct {
+		ID    string `json:"id"`
+		Name  string `json:"name"`
+		Email string `json:"email"`
+	}
+	err = json.NewDecoder(resp.Body).Decode(&user)
+	if err != nil {
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	userID, err := storeUserInDB(user.Name, user.Email, "")
 	if err != nil {
 		http.Error(w, "Could not store user in database", http.StatusInternalServerError)
 		return

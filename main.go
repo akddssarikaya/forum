@@ -11,9 +11,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var (
-	database *sql.DB
-)
+var database *sql.DB
 
 func main() {
 	var err error
@@ -77,6 +75,8 @@ func main() {
 	http.HandleFunc("/auth/github/callback", models.HandleGitHubCallback)
 	http.HandleFunc("/auth/google/login", models.HandleGoogleLogin)
 	http.HandleFunc("/auth/google/callback", models.HandleGoogleCallback)
+	http.HandleFunc("/auth/facebook/login", models.HandleFacebookLogin)
+	http.HandleFunc("/auth/facebook/callback", models.HandleFacebookCallback)
 
 	log.Println("Server is running on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
