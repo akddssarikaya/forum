@@ -3,8 +3,8 @@ package models
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
+	"strconv"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
@@ -66,7 +66,18 @@ func HandleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	storeUserInDB(user.Login, user.Email, "")
+	userID, err := storeUserInDB(user.Login, user.Email, "")
+	if err != nil {
+		http.Error(w, "Could not store user in database", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:  "user_id",
+		Value: strconv.FormatInt(userID, 10),
+		Path:  "/",
+	})
+
 	http.Redirect(w, r, "/profile", http.StatusSeeOther)
 }
 
@@ -107,40 +118,54 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	storeUserInDB(user.Name, user.Email, "")
+	userID, err := storeUserInDB(user.Name, user.Email, "")
+	if err != nil {
+		http.Error(w, "Could not store user in database", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:  "user_id",
+		Value: strconv.FormatInt(userID, 10),
+		Path:  "/",
+	})
+
 	http.Redirect(w, r, "/profile", http.StatusSeeOther)
 }
 
-func storeUserInDB(username, email, password string) {
+func storeUserInDB(username, email, password string) (int64, error) {
 	db, err := sql.Open("sqlite3", "./Back-end/database/forum.db")
 	if err != nil {
-		log.Fatal(err)
+		return 0, err
 	}
 	defer db.Close()
 
-	// Kullanıcıyı 'users' tablosuna ekle
-	insertUserQuery := `
-        INSERT INTO users (username, email, password)
-        VALUES (?, ?, ?)
-        ON CONFLICT(email) DO UPDATE SET
-        username = excluded.username,
-        password = excluded.password
-    `
-	_, err = db.Exec(insertUserQuery, username, email, password)
-	if err != nil {
-		log.Println("Error inserting user:", err)
+	var userID int64
+	err = db.QueryRow("SELECT id FROM users WHERE email = ?", email).Scan(&userID)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, err
 	}
 
-	// Kullanıcıyı 'profile' tablosuna ekle
-	insertProfileQuery := `
-        INSERT INTO profile (user_id, username, email)
-        VALUES ((SELECT id FROM users WHERE username = ?), ?, ?)
-        ON CONFLICT(user_id) DO UPDATE SET
-        username = excluded.username,
-        email = excluded.email
-    `
-	_, err = db.Exec(insertProfileQuery, username, username, email)
-	if err != nil {
-		log.Println("Error inserting profile:", err)
+	if userID == 0 {
+		result, err := db.Exec("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", username, email, password)
+		if err != nil {
+			return 0, err
+		}
+		userID, err = result.LastInsertId()
+		if err != nil {
+			return 0, err
+		}
+	} else {
+		_, err := db.Exec("UPDATE users SET username = ?, password = ? WHERE id = ?", username, password, userID)
+		if err != nil {
+			return 0, err
+		}
 	}
+
+	_, err = db.Exec("INSERT INTO profile (user_id, username, email) VALUES (?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET username = excluded.username, email = excluded.email", userID, username, email)
+	if err != nil {
+		return 0, err
+	}
+
+	return userID, nil
 }

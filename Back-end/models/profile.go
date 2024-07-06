@@ -30,6 +30,7 @@ func HandleProfile(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	err = db.QueryRow("SELECT id, username, email FROM users WHERE id = ?", userID).Scan(&user.ID, &user.Username, &user.Email)
+
 	if err != nil {
 		http.Error(w, "User not found", http.StatusInternalServerError)
 		return
